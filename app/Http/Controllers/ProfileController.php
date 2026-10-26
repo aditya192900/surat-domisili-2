@@ -23,9 +23,10 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // ⚠️ EMAIL TIDAK DIVALIDASI/DIIZINKAN DIUBAH DARI SINI
+        // Perubahan email harus melalui Ketua RT / Admin Kelurahan.
         $rules = [
             'name'          => 'required|string|max:255',
-            'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
             'phone'         => 'nullable|string|max:20',
             'foto'          => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
             'tempat_lahir'  => 'nullable|string|max:100',
@@ -39,6 +40,10 @@ class ProfileController extends Controller
         ];
 
         $validated = $request->validate($rules);
+
+        // 🔒 KUNCI EMAIL — paksa tetap pakai email lama, apapun yang dikirim user
+        // Ini mencegah user "nakal" yang menghapus atribut readonly via DevTools.
+        $validated['email'] = $user->email;
 
         // Upload foto profil
         if ($request->hasFile('foto')) {
@@ -75,11 +80,6 @@ class ProfileController extends Controller
         unset($validated['stempel']);
 
         $user->fill($validated);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
 
         ActivityLogger::log('update_profil', "User {$user->name} memperbarui profil", $user);
@@ -194,7 +194,9 @@ class ProfileController extends Controller
             abort(404);
         }
 
-        return response()->file($fullPath);
+                return response()->file($fullPath, [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     public function ttd(Request $request, $userId = null)
@@ -211,7 +213,9 @@ class ProfileController extends Controller
             abort(404);
         }
 
-        return response()->file($fullPath);
+                return response()->file($fullPath, [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     public function stempel(Request $request, $userId = null)
@@ -228,7 +232,9 @@ class ProfileController extends Controller
             abort(404);
         }
 
-        return response()->file($fullPath);
+                return response()->file($fullPath, [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     public function destroy(Request $request): RedirectResponse

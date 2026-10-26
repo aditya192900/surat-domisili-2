@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataWargaRt;
+use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DataWargaRtController extends Controller
 {
@@ -18,7 +21,6 @@ class DataWargaRtController extends Controller
 
         $query = DataWargaRt::where('rt', $rt)->latest();
 
-        // Filter pencarian
         if ($request->filled('cari')) {
             $cari = $request->cari;
             $query->where(function ($q) use ($cari) {
@@ -28,17 +30,24 @@ class DataWargaRtController extends Controller
             });
         }
 
-        // Filter status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         $data = $query->paginate(15)->withQueryString();
 
+        // 🚀 Optimasi: 1 query GROUP BY
+        $perStatus = DB::table('data_warga_rt')
+            ->where('rt', $rt)
+            ->selectRaw('status, COUNT(*) as jumlah')
+            ->groupBy('status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
+
         $statistik = [
-            'total'        => DataWargaRt::where('rt', $rt)->count(),
-            'belum_daftar' => DataWargaRt::where('rt', $rt)->where('status', 'belum_daftar')->count(),
-            'sudah_daftar' => DataWargaRt::where('rt', $rt)->where('status', 'sudah_daftar')->count(),
+            'total'        => array_sum($perStatus),
+            'belum_daftar' => $perStatus['belum_daftar'] ?? 0,
+            'sudah_daftar' => $perStatus['sudah_daftar'] ?? 0,
         ];
 
         return view('rt.data-warga.index', compact('data', 'statistik'));
@@ -113,7 +122,6 @@ class DataWargaRtController extends Controller
     {
         $user = auth()->user();
 
-        // Cek hak akses: RT hanya bisa edit warga di RT-nya
         if ($dataWarga->rt !== $user->rt) {
             abort(403, 'Anda tidak berhak mengedit data warga ini.');
         }
@@ -132,7 +140,6 @@ class DataWargaRtController extends Controller
             abort(403, 'Anda tidak berhak mengedit data warga ini.');
         }
 
-        // NIK tidak bisa diubah kalau sudah daftar akun
         $nikRule = $dataWarga->status === 'sudah_daftar'
             ? 'required|string|size:16'
             : 'required|string|size:16|unique:data_warga_rt,nik,' . $dataWarga->id;
@@ -193,7 +200,6 @@ class DataWargaRtController extends Controller
             abort(403, 'Anda tidak berhak menghapus data warga ini.');
         }
 
-        // Kalau warga sudah daftar akun, tidak boleh dihapus
         if ($dataWarga->status === 'sudah_daftar') {
             return back()->with('error', 'Warga sudah mendaftar akun, data tidak bisa dihapus. Nonaktifkan saja jika perlu.');
         }
@@ -225,6 +231,66 @@ class DataWargaRtController extends Controller
             abort(403, 'Anda tidak berhak melihat data warga ini.');
         }
 
-        return view('rt.data-warga.show', compact('dataWarga'));
+        $akunWarga = User::where('nik', $dataWarga->nik)->first();
+
+        return view('rt.data-warga.show', compact('dataWarga', 'akunWarga'));
+    }
+
+    // ==========================================
+    // RESET PASSWORD WARGA
+    // ==========================================
+    public function resetPassword(Request $request, DataWargaRt $dataWarga)
+    {
+        $user = auth()->user();
+
+        if ($dataWarga->rt !== $user->rt) {
+            abort(403, 'Anda tidak berhak mereset password warga ini.');
+        }
+
+        if ($dataWarga->status !== 'sudah_daftar') {
+            return back()->with('error', 'Warga belum mendaftar akun, tidak ada password untuk direset.');
+        }
+
+        $akunWarga = User::where('nik', $dataWarga->nik)->first();
+
+        if (!$akunWarga) {
+            return back()->with('error', 'Akun warga tidak ditemukan di sistem. Hubungi admin kelurahan.');
+        }
+
+        $passwordBaru = $request->filled('password_baru')
+            ? trim($request->password_baru)
+            : $this->generatePassword($dataWarga->nama);
+
+        if (strlen($passwordBaru) < 8) {
+            return back()->with('error', 'Password minimal 8 karakter.');
+        }
+
+        $akunWarga->update([
+            'password' => Hash::make($passwordBaru),
+        ]);
+
+        ActivityLogger::log(
+            'reset_password_warga',
+            "RT {$user->rt} mereset password akun warga: {$dataWarga->nama} (NIK: {$dataWarga->nik})",
+            null,
+            null,
+            ['nama' => $dataWarga->nama, 'nik' => $dataWarga->nik]
+        );
+
+        return back()
+            ->with('success', "Password {$dataWarga->nama} berhasil direset.")
+            ->with('password_baru', $passwordBaru)
+            ->with('warga_nama', $dataWarga->nama);
+    }
+
+    private function generatePassword(string $nama): string
+    {
+        $kataPertama = explode(' ', trim($nama))[0];
+        $kataPertama = preg_replace('/[^A-Za-z]/', '', $kataPertama);
+        $kataPertama = ucfirst(strtolower($kataPertama));
+        $tahun       = date('Y');
+        $randomNum   = rand(10, 99);
+
+        return $kataPertama . '@' . $tahun . $randomNum;
     }
 }

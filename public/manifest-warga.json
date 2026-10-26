@@ -1,0 +1,18 @@
+{
+  "id": "/?app=warga",
+  "name": "Surat Warga - Kelurahan Sungai Asam",
+  "short_name": "Surat Warga",
+  "description": "Aplikasi pengajuan surat untuk warga",
+  "start_url": "/?app=warga",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/images/icon-warga.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

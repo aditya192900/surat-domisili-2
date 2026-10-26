@@ -1,0 +1,18 @@
+{
+  "id": "/login?app=kelurahan",
+  "name": "Surat Kelurahan - Sungai Asam",
+  "short_name": "Admin Kelurahan",
+  "description": "Aplikasi manajemen surat untuk kelurahan",
+  "start_url": "/login?app=kelurahan",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/images/icon-kelurahan.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

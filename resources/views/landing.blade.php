@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    @php $appType = request('app', 'warga'); @endphp
+<link rel="manifest" href="{{ asset('manifest-' . $appType . '.json') }}">
+<meta name="theme-color" content="{{ $appType === 'rt' ? '#059669' : ($appType === 'kelurahan' ? '#7c3aed' : '#2563eb') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/icon-' . $appType . '.png') }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -34,6 +38,29 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
         .btn-secondary { padding: 14px 32px; background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.5); border-radius: 10px; font-weight: 600; font-size: 15px; transition: 0.2s; }
         .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+
+        /* ============ PENGUMUMAN ============ */
+        .pengumuman-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); padding: 70px 0; position: relative; overflow: hidden; }
+        .pengumuman-section::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; background: rgba(139, 92, 246, 0.06); border-radius: 50%; }
+        .pengumuman-section::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; background: rgba(139, 92, 246, 0.06); border-radius: 50%; }
+        .pengumuman-header { text-align: center; margin-bottom: 42px; position: relative; z-index: 1; }
+        .pengumuman-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; background: white; border-radius: 20px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15); margin-bottom: 16px; }
+        .pengumuman-badge span:first-child { font-size: 18px; }
+        .pengumuman-badge span:last-child { font-size: 12px; font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pengumuman-header h2 { font-size: 30px; font-weight: 800; color: #111827; margin-bottom: 10px; }
+        .pengumuman-header p { font-size: 15px; color: #6b7280; max-width: 600px; margin: 0 auto; }
+        .pengumuman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; position: relative; z-index: 1; }
+        .pengumuman-card { background: white; border-radius: 16px; padding: 24px; display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; transition: 0.25s; position: relative; overflow: hidden; }
+        .pengumuman-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #8b5cf6, #7c3aed); }
+        .pengumuman-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15); border-color: #ddd6fe; }
+        .pengumuman-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .pengumuman-kategori { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .pengumuman-tanggal { font-size: 11.5px; color: #9ca3af; }
+        .pengumuman-card h3 { font-size: 17px; font-weight: 700; color: #111827; margin-bottom: 10px; line-height: 1.4; }
+        .pengumuman-card p { font-size: 13.5px; color: #6b7280; margin-bottom: 16px; line-height: 1.6; }
+        .pengumuman-more { font-size: 13px; color: #7c3aed; font-weight: 600; }
+        .pengumuman-empty { text-align: center; padding: 40px 20px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); max-width: 500px; margin: 0 auto; position: relative; z-index: 1; }
+        .pengumuman-empty-icon { font-size: 48px; margin-bottom: 12px; }
 
         /* CEK NIK */
         .cek-nik-section { background: linear-gradient(135deg, #f0f9ff 0%, #ede9fe 100%); padding: 60px 0; position: relative; overflow: hidden; }
@@ -152,6 +179,14 @@
         .info-box p { font-size: 14px; color: #4b5563; line-height: 1.7; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #dcfce7; color: #166534; }
 
+        /* ============ MAPS ============ */
+        .maps-wrapper { margin-top: 32px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid #e5e7eb; }
+        .maps-header { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 14px; }
+        .maps-header-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+        .maps-header h4 { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
+        .maps-header p { font-size: 12px; color: #6b7280; margin: 2px 0 0 0; }
+        .maps-wrapper iframe { display: block; width: 100%; height: 380px; border: 0; }
+
         /* FOOTER */
         .footer { background: #111827; color: #9ca3af; padding: 40px 0 20px; margin-top: 40px; }
         .footer-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-bottom: 30px; }
@@ -178,6 +213,9 @@
             .cek-nik-wrapper { padding: 30px 22px; }
             .cek-nik-input-group { flex-direction: column; }
             .cek-nik-input-group button { width: 100%; }
+            .pengumuman-header h2 { font-size: 24px; }
+            .pengumuman-section { padding: 50px 0; }
+            .maps-wrapper iframe { height: 300px; }
         }
     </style>
 </head>
@@ -233,6 +271,44 @@
             @endauth
         </div>
     </section>
+
+    {{-- ============ PENGUMUMAN ============ --}}
+    @if(isset($pengumuman) && $pengumuman->count() > 0)
+    <section class="pengumuman-section" id="pengumuman">
+        <div class="container">
+            <div class="pengumuman-header">
+                <div class="pengumuman-badge">
+                    <span>📢</span>
+                    <span>Pengumuman Terbaru</span>
+                </div>
+                <h2>Informasi dari Kelurahan</h2>
+                <p>Update terbaru seputar kegiatan dan pelayanan kelurahan</p>
+            </div>
+
+            <div class="pengumuman-grid">
+                @foreach($pengumuman as $item)
+                    @php $badge = $item->badgeKategori(); @endphp
+                    <a href="{{ route('pengumuman.show', $item->id) }}" class="pengumuman-card">
+                        <div class="pengumuman-meta">
+                            <span class="pengumuman-kategori" style="background:{{ $badge['bg'] }}; color:{{ $badge['color'] }};">
+                                {{ $badge['icon'] }} {{ $badge['label'] }}
+                            </span>
+                            <span class="pengumuman-tanggal">
+                                {{ $item->tanggal_mulai->translatedFormat('d M Y') }}
+                            </span>
+                        </div>
+
+                        <h3>{{ $item->judul }}</h3>
+
+                        <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->konten), 120) }}</p>
+
+                        <div class="pengumuman-more">Baca selengkapnya →</div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     {{-- CEK NIK --}}
     <section class="cek-nik-section" id="cek-nik">
@@ -314,7 +390,8 @@
         </div>
     </section>
 
-    {{-- LAYANAN --}}
+       {{-- LAYANAN --}}
+       {{-- LAYANAN --}}
     <section class="section section-alt" id="layanan">
         <div class="container">
             <div class="section-title">
@@ -322,41 +399,94 @@
                 <p>Pilih jenis surat yang Anda butuhkan. Semua proses dilakukan secara online.</p>
             </div>
 
-            <div class="cards">
-                <div class="card">
-                    <div class="card-icon" style="background:#dbeafe; color:#1e40af;">🏠</div>
-                    <h3>Surat Keterangan Domisili</h3>
-                    <p>Untuk keterangan tempat tinggal, biasanya diperlukan untuk pembuatan rekening bank, KTP, dan keperluan administrasi lainnya.</p>
-                    <ul>
-                        <li>Scan KTP</li>
-                        <li>Scan KK</li>
-                        <li>Pas Foto 3x4</li>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+                
+                <!-- 1. SURAT KETERANGAN TIDAK MAMPU (SKTM) -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#fef3c7; color:#b45309;">🤝</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Surat Keterangan Tidak Mampu (SKTM)</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keperluan beasiswa, bantuan sosial, atau keringanan biaya rumah sakit.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KK dan KTP</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB</li>
                     </ul>
                 </div>
-                <div class="card">
-                    <div class="card-icon" style="background:#fef3c7; color:#b45309;">🤝</div>
-                    <h3>Surat Keterangan Tidak Mampu (SKTM)</h3>
-                    <p>Untuk keperluan beasiswa, bantuan sosial, keringanan biaya rumah sakit, atau keperluan lainnya.</p>
-                    <ul>
-                        <li>Scan KTP</li>
-                        <li>Scan KK</li>
-                        <li>Pas Foto 3x4</li>
+
+                <!-- 2. PENGANTAR NIKAH -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#fce7f3; color:#be185d;">💍</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Pengantar Nikah</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keperluan administrasi pernikahan di KUA.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP & KK (yang bersangkutan, orang tua, & orang tua calon pasangan)</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pas foto ukuran 3x4 sebanyak 3 lembar</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Surat keterangan kesehatan</li>
                     </ul>
                 </div>
-                <div class="card">
-                    <div class="card-icon" style="background:#d1fae5; color:#065f46;">🏪</div>
-                    <h3>Surat Keterangan Usaha (SKU)</h3>
-                    <p>Untuk keterangan kepemilikan usaha, biasanya diperlukan untuk pinjaman modal, izin usaha, atau perpajakan.</p>
-                    <ul>
-                        <li>Scan KTP</li>
-                        <li>Scan KK</li>
-                        <li>Pas Foto 3x4</li>
+
+                <!-- 3. SURAT PERNYATAAN AHLI WARIS -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#e0e7ff; color:#4338ca;">📜</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Surat Pernyataan Ahli Waris</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keperluan pembagian atau penentuan ahli waris.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Akta kematian</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP & KK para ahli waris</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP 2 (dua) orang saksi</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB tahun berjalan</li>
                     </ul>
                 </div>
+
+                <!-- 4. SURAT KETERANGAN DOMISILI -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#dbeafe; color:#1e40af;">🏠</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Surat Keterangan Domisili</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keterangan tempat tinggal, pembuatan rekening bank, KTP, dan lainnya.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP dan KK</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB tahun 2026</li>
+                    </ul>
+                </div>
+
+                <!-- 5. SURAT KETERANGAN BELUM MENIKAH -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#f3e8ff; color:#7e22ce;">👤</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Surat Keterangan Belum Menikah</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keterangan status belum menikah secara resmi.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP dan KK</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB tahun 2026 / tahun berjalan</li>
+                    </ul>
+                </div>
+
+                <!-- 6. SURAT KETERANGAN BELUM MEMILIKI RUMAH -->
+                <div style="background:white; border:1px solid #e5e7eb; border-radius:14px; padding:28px; transition:0.25s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)'; this.style.borderColor='#c7d2fe'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e5e7eb'">
+                    <div style="width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; background:#d1fae5; color:#065f46;">🏡</div>
+                    <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#111827;">Surat Keterangan Belum Memiliki Rumah</h3>
+                    <p style="color:#6b7280; font-size:13.5px; margin-bottom:16px; line-height:1.5;">Untuk keterangan status belum memiliki tempat tinggal pribadi.</p>
+                    <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">Persyaratan:</div>
+                    <ul style="list-style:none; font-size:13px; color:#4b5563; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Pengantar dari RT</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Fotokopi KTP dan KK</li>
+                        <li style="display:flex; align-items:flex-start; gap:6px;"><span style="color:#10b981; font-weight:700;">✓</span> Bukti lunas PBB tahun 2026 / tahun berjalan</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
     </section>
-
+    
     {{-- KEUNGGULAN --}}
     <section class="section">
         <div class="container">
@@ -524,9 +654,87 @@
                     </p>
                 </div>
             </div>
+
+            {{-- ============ PETA LOKASI ============ --}}
+            <div class="maps-wrapper">
+                <div class="maps-header">
+                    <div class="maps-header-icon">📍</div>
+                    <div>
+                        <h4>Lokasi Kantor Kelurahan</h4>
+                        <p>Jl. Sungai Asam No. 1, Kecamatan Danau Sipin, Kota Jambi</p>
+                    </div>
+                </div>
+                {{-- GANTI src DI BAWAH DENGAN KODE EMBED DARI GOOGLE MAPS KAMU --}}
+             <iframe
+    src="https://maps.google.com/maps?q=-1.5989956,103.6204404&hl=id&z=17&output=embed"
+    width="100%"
+    height="380"
+    style="border:0; display:block;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+</iframe>
+            </div>
         </div>
     </section>
+<!-- ========================================== -->
+<!-- BAGIAN INSTALL APLIKASI PWA (DINAMIS) -->
+<!-- ========================================== -->
+<section style="padding: 60px 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+    <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+        
+        <!-- Judul -->
+        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 28px;">📲</span>
+            <h2 style="font-size: 26px; font-weight: 800; color: #111827; margin: 0;">Install Aplikasi di HP Anda</h2>
+        </div>
+        <p style="color: #6b7280; font-size: 15px; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+            Akses layanan surat lebih cepat layaknya aplikasi *native* di Android atau iOS. Pilih jenis aplikasi sesuai peran Anda.
+        </p>
 
+        <!-- Tombol-tombol -->
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+
+            <!-- Tombol Aplikasi Warga -->
+            <a href="{{ url('/?app=warga') }}" 
+               style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 200px; padding: 24px 20px; background: white; border: 2px solid #eff6ff; border-radius: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: 0.2s;"
+               onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 10px 25px rgba(37,99,235,0.15)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#eff6ff'; this.style.boxShadow='0 4px 14px rgba(0,0,0,0.04)'">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 4px; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">🏠</div>
+                <div style="font-weight: 800; font-size: 15px; color: #1e40af;">Aplikasi Warga</div>
+                <div style="font-size: 12px; color: #6b7280;">Ajukan & Lacak Surat</div>
+            </a>
+
+            <!-- Tombol Aplikasi RT -->
+            <a href="{{ url('/login?app=rt') }}" 
+               style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 200px; padding: 24px 20px; background: white; border: 2px solid #ecfdf5; border-radius: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: 0.2s;"
+               onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#a7f3d0'; this.style.boxShadow='0 10px 25px rgba(16,185,129,0.15)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#ecfdf5'; this.style.boxShadow='0 4px 14px rgba(0,0,0,0.04)'">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981 0%, #047857 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">📋</div>
+                <div style="font-weight: 800; font-size: 15px; color: #065f46;">Aplikasi RT</div>
+                <div style="font-size: 12px; color: #6b7280;">Verifikasi Surat Warga</div>
+            </a>
+
+            <!-- Tombol Aplikasi Kelurahan -->
+            <a href="{{ url('/login?app=kelurahan') }}" 
+               style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 200px; padding: 24px 20px; background: white; border: 2px solid #f5f3ff; border-radius: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: 0.2s;"
+               onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#ddd6fe'; this.style.boxShadow='0 10px 25px rgba(139,92,246,0.15)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#f5f3ff'; this.style.boxShadow='0 4px 14px rgba(0,0,0,0.04)'">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 4px; box-shadow: 0 4px 10px rgba(139,92,246,0.3);">🏛️</div>
+                <div style="font-weight: 800; font-size: 15px; color: #5b21b6;">Aplikasi Kelurahan</div>
+                <div style="font-size: 12px; color: #6b7280;">Proses & Terbitkan Surat</div>
+            </a>
+
+        </div>
+
+        <!-- Info cara install -->
+        <div style="margin-top: 30px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border-radius: 20px; border: 1px dashed #cbd5e1;">
+            <span style="font-size: 16px;">💡</span>
+            <span style="font-size: 12.5px; color: #64748b;">Klik tombol di atas, lalu tekan <strong>"Install"</strong> pada browser Anda (Chrome/Safari).</span>
+        </div>
+
+    </div>
+</section>
     {{-- FOOTER --}}
     <footer class="footer">
         <div class="container">
@@ -561,8 +769,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
+                           <div class="footer-bottom">
                 © {{ date('Y') }} Kelurahan Sungai Asam. Sistem Pelayanan Surat Digital.
+                <div style="margin-top:6px; font-size:11.5px; color:#6b7280;">
+                    Developed by <a href="#" style="color:#a5b4fc; font-weight:700; text-decoration:none;">M. Aditya Herdyan</a>
+                </div>
+            </div>
             </div>
         </div>
     </footer>
@@ -722,6 +934,13 @@
             }
         });
     </script>
-
+    <!-- SERVICE WORKER PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
 </body>
 </html>

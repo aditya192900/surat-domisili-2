@@ -56,10 +56,28 @@
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
+        {{-- EMAIL (READONLY - HANYA BISA DIUBAH VIA RT) --}}
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full"
-                          :value="old('email', $user->email)" required />
+            <div style="position:relative; margin-top:4px;">
+                <input type="email" id="email" name="email"
+                       value="{{ old('email', $user->email) }}"
+                       readonly
+                       style="width:100%; padding:10px 40px 10px 12px; border:1.5px solid #e5e7eb; border-radius:8px;
+                              background:#f3f4f6; color:#6b7280; cursor:not-allowed; font-family:inherit; font-size:14px;">
+                <div style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:16px; color:#9ca3af;" title="Email terkunci">
+                    🔒
+                </div>
+            </div>
+
+            {{-- INFO BOX --}}
+            <div style="margin-top:8px; padding:10px 14px; background:linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border:1px solid #bfdbfe; border-radius:8px; display:flex; align-items:flex-start; gap:8px;">
+                <div style="font-size:16px; flex-shrink:0;">ℹ️</div>
+                <div style="font-size:12.5px; color:#1e40af; line-height:1.5;">
+                    <strong>Email digunakan untuk login akun.</strong> Untuk mengubah email, silakan hubungi atau konfirmasi ke <strong>Ketua RT</strong> setempat.
+                </div>
+            </div>
+
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 

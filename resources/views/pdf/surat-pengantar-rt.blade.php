@@ -144,11 +144,7 @@
         <p>Yang bertanda tangan di bawah ini, Ketua RT {{ $surat->warga->rt }} / RW {{ $surat->warga->rw }}, 
            Kelurahan Sungai Asam, Kecamatan Danau Sipin, dengan ini menerangkan bahwa:</p>
 
-        @if ($fotoBase64)
-            <div class="foto-box">
-                <img src="{{ $fotoBase64 }}" alt="Pas Foto">
-            </div>
-        @endif
+       
 
         <table class="data">
             <tr><td>Nama Lengkap</td><td>: <strong>{{ $surat->warga->name }}</strong></td></tr>

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        @php $appType = request('app', 'rt'); @endphp
+<link rel="manifest" href="{{ asset('manifest-' . $appType . '.json') }}">
+<meta name="theme-color" content="{{ $appType === 'kelurahan' ? '#7c3aed' : '#059669' }}">
+<link rel="apple-touch-icon" href="{{ asset('images/icon-' . $appType . '.png') }}">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -26,5 +30,14 @@
                 {{ $slot }}
             </div>
         </div>
+            <!-- SERVICE WORKER PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
     </body>
+       
 </html>

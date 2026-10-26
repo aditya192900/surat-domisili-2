@@ -11,16 +11,6 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Jumlah percobaan maksimal sebelum diblokir.
-     */
-    public const MAX_ATTEMPTS = 5;
-
-    /**
-     * Waktu blokir (detik). 600 detik = 10 menit.
-     */
-    public const LOCKOUT_SECONDS = 600;
-
     public function authorize(): bool
     {
         return true;
@@ -29,7 +19,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'    => ['required', 'string', 'email'],
+            'email'    => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -37,29 +27,62 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'email.required'    => 'Email atau Nomor HP wajib diisi.',
             'password.required' => 'Kata sandi wajib diisi.',
         ];
     }
 
+    /**
+     * Attempt to authenticate the request's credentials.
+     */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey(), self::LOCKOUT_SECONDS);
+        $login = trim($this->input('email'));
+        $password = $this->input('password');
 
-            $sisa = self::MAX_ATTEMPTS - RateLimiter::attempts($this->throttleKey());
+        // 🎯 Deteksi: apakah input berupa email atau nomor HP
+        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL) !== false;
 
-            if ($sisa > 0) {
-                $pesan = "Email atau kata sandi salah. Sisa percobaan: {$sisa}x lagi sebelum akun diblokir sementara.";
-            } else {
-                $pesan = 'Terlalu banyak percobaan login gagal. Akun Anda diblokir sementara selama 10 menit. Silakan coba lagi nanti.';
+        // Normalisasi nomor HP (hapus spasi, strip, kurung, plus, dll.)
+        $phoneNormalized = preg_replace('/[^0-9]/', '', $login);
+
+        // Konversi format nomor HP ke standar 08xxx
+        // +62812xxx → 0812xxx
+        // 62812xxx  → 0812xxx
+        if (str_starts_with($phoneNormalized, '62')) {
+            $phoneNormalized = '0' . substr($phoneNormalized, 2);
+        }
+
+        $credentials = null;
+
+        if ($isEmail) {
+            // Coba login via email
+            $credentials = ['email' => $login, 'password' => $password];
+        } else {
+            // Coba login via phone (beberapa variasi format)
+            $phoneVariants = array_unique([
+                $phoneNormalized,
+                $login, // original input
+            ]);
+
+            foreach ($phoneVariants as $phone) {
+                if (Auth::attempt(['phone' => $phone, 'password' => $password], $this->boolean('remember'))) {
+                    RateLimiter::clear($this->throttleKey());
+                    return;
+                }
             }
 
+            // Fallback: kalau input bukan email tapi bukan juga nomor valid, coba sebagai email
+            $credentials = ['email' => $login, 'password' => $password];
+        }
+
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
             throw ValidationException::withMessages([
-                'email' => $pesan,
+                'email' => trans('auth.failed'),
             ]);
         }
 
@@ -68,7 +91,7 @@ class LoginRequest extends FormRequest
 
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -76,20 +99,16 @@ class LoginRequest extends FormRequest
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-        if ($seconds >= 60) {
-            $menit = ceil($seconds / 60);
-            $waktu = "{$menit} menit";
-        } else {
-            $waktu = "{$seconds} detik";
-        }
-
         throw ValidationException::withMessages([
-            'email' => "Terlalu banyak percobaan login gagal. Akun Anda diblokir selama {$waktu}. Silakan coba lagi nanti.",
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
         ]);
     }
 
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

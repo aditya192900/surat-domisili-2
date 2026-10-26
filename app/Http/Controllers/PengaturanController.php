@@ -146,6 +146,8 @@ class PengaturanController extends Controller
             abort(404);
         }
 
-        return response()->file($fullPath);
+        return response()->file($fullPath);        return response()->file($fullPath, [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }

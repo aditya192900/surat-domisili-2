@@ -188,6 +188,14 @@
 
                             $adaDitolak = in_array($item->status, ['ditolak_rt', 'ditolak_kelurahan']);
                             $alasan = $item->status === 'ditolak_rt' ? $item->catatan_rt : ($item->status === 'ditolak_kelurahan' ? $item->catatan_kelurahan : null);
+
+                            $isBaru = $item->rt_verified_at
+                                      && $item->rt_verified_at->diffInHours(now()) < 24
+                                      && in_array($item->status, ['diverifikasi_rt', 'diproses_kelurahan']);
+
+                            // 🆕 Tentukan boleh download atau tidak
+                            $bolehDownload = $item->rt_verified_at
+                                             && in_array($item->status, ['diverifikasi_rt', 'diproses_kelurahan', 'selesai']);
                         @endphp
 
                         <div style="border-bottom:1px solid #f3f4f6; transition:0.15s; position:relative;" class="row-hover">
@@ -197,10 +205,15 @@
 
                                 {{-- KOLOM 1: NOMOR + DOKUMEN --}}
                                 <div>
-                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
                                         <span style="font-family:monospace; font-size:12px; font-weight:700; color:#1e40af; background:#eff6ff; padding:4px 10px; border-radius:8px; letter-spacing:0.3px;">
                                             {{ $item->nomor_pengajuan }}
                                         </span>
+                                        @if ($isBaru)
+                                            <span style="padding:3px 8px; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:white; border-radius:6px; font-size:9.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; box-shadow:0 2px 6px rgba(220,38,38,0.4); animation:newPulse 1.5s infinite;">
+                                                ● NEW
+                                            </span>
+                                        @endif
                                         <button onclick="copyNomor('{{ $item->nomor_pengajuan }}', this)" title="Salin nomor"
                                                 style="background:transparent; border:none; cursor:pointer; padding:4px; border-radius:6px; color:#9ca3af; transition:0.15s;"
                                                 onmouseover="this.style.background='#f3f4f6'; this.style.color='#374151'" onmouseout="this.style.background='transparent'; this.style.color='#9ca3af'">
@@ -251,13 +264,24 @@
                                 </div>
 
                                 {{-- KOLOM 5: AKSI --}}
-                                <div style="text-align:right;">
+                                <div style="text-align:right; display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;">
                                     <a href="{{ route('surat.show', $item) }}"
-                                       style="padding:9px 16px; background:#111827; color:white; border-radius:8px; font-size:12px; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:0.15s;"
+                                       style="padding:9px 14px; background:#111827; color:white; border-radius:8px; font-size:12px; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:0.15s;"
                                        onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#111827'; this.style.transform='translateY(0)'">
                                         Detail
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                     </a>
+
+                                    {{-- TOMBOL DOWNLOAD PENGANTAR --}}
+                                    @if ($bolehDownload)
+                                        <a href="{{ route('warga.surat.pengantar', $item) }}"
+                                           style="padding:9px 14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; border-radius:8px; font-size:12px; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:5px; transition:0.15s; box-shadow:0 3px 10px rgba(16,185,129,0.3); white-space:nowrap;"
+                                           onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(16,185,129,0.4)'"
+                                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(16,185,129,0.3)'"
+                                           title="Download Surat Pengantar RT">
+                                            📥
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
 
@@ -286,8 +310,15 @@
                                             {{ $layananIcon }}
                                         </div>
                                         <div>
-                                            <div style="font-family:monospace; font-size:11px; font-weight:700; color:#1e40af; margin-bottom:3px;">
-                                                {{ $item->nomor_pengajuan }}
+                                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px; flex-wrap:wrap;">
+                                                <span style="font-family:monospace; font-size:11px; font-weight:700; color:#1e40af;">
+                                                    {{ $item->nomor_pengajuan }}
+                                                </span>
+                                                @if ($isBaru)
+                                                    <span style="padding:2px 6px; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:white; border-radius:4px; font-size:9px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
+                                                        ● NEW
+                                                    </span>
+                                                @endif
                                             </div>
                                             <div style="font-weight:600; color:#111827; font-size:13px; line-height:1.3;">
                                                 {{ Str::limit($item->keperluan, 40) }}
@@ -311,6 +342,12 @@
                                        style="flex:1; padding:10px; background:#111827; color:white; border-radius:8px; font-size:12px; text-decoration:none; font-weight:600; text-align:center;">
                                         Lihat Detail →
                                     </a>
+                                    @if ($bolehDownload)
+                                        <a href="{{ route('warga.surat.pengantar', $item) }}"
+                                           style="padding:10px 16px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; border-radius:8px; font-size:12px; text-decoration:none; font-weight:700; text-align:center; white-space:nowrap;">
+                                            📥 Pengantar
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
 
@@ -371,6 +408,11 @@
         }
 
         .copied-btn { background: #10b981 !important; color: white !important; }
+
+        @keyframes newPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 2px 6px rgba(220,38,38,0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 2px 14px rgba(220,38,38,0.7); }
+        }
     </style>
 
     <script>

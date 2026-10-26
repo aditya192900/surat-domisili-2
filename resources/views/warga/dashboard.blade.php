@@ -18,6 +18,63 @@
     <div class="py-8">
         <div style="max-width:1200px; margin:0 auto; padding:0 20px;">
 
+                       {{-- 🎉 NOTIFIKASI: SURAT SIAP DOWNLOAD PENGANTAR RT --}}
+            @if (isset($siapDownload) && $siapDownload->count() > 0)
+                <div style="background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:2px solid #6ee7b7; border-left:5px solid #10b981; border-radius:14px; padding:20px 24px; margin-bottom:20px; box-shadow:0 8px 24px rgba(16,185,129,0.15);">
+                    <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                        <div style="flex-shrink:0; width:52px; height:52px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+                            🎉
+                        </div>
+                        <div style="flex:1; min-width:240px;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                                <div style="font-weight:800; color:#065f46; font-size:15.5px;">
+                                    Kabar Baik! Surat Anda Sudah Diverifikasi RT
+                                </div>
+                                <span style="padding:3px 10px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; border-radius:20px; font-size:11.5px; font-weight:800;">
+                                    {{ $totalSiapDownload ?? $siapDownload->count() }} surat
+                                </span>
+                            </div>
+                            <div style="font-size:13px; color:#047857; margin-bottom:14px; line-height:1.6;">
+                                Silakan download <strong>Surat Pengantar RT</strong> lalu bawa ke kantor kelurahan untuk diproses lebih lanjut.
+                            </div>
+
+                            {{-- Daftar surat (max 3) --}}
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                @foreach ($siapDownload as $surat)
+                                    <div style="background:white; border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                                        <div style="flex:1; min-width:180px;">
+                                            <div style="font-family:monospace; font-size:11px; font-weight:700; color:#1e40af; margin-bottom:3px;">
+                                                {{ $surat->nomor_pengajuan }}
+                                            </div>
+                                            <div style="font-size:12.5px; color:#111827; font-weight:600;">
+                                                {{ Str::limit($surat->keperluan, 55) }}
+                                            </div>
+                                            <div style="font-size:10.5px; color:#9ca3af; margin-top:3px;">
+                                                ✓ Diverifikasi {{ $surat->rt_verified_at->translatedFormat('d M Y, H:i') }} WIB
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('warga.surat.pengantar', $surat) }}"
+                                           style="padding:9px 16px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700; box-shadow:0 3px 10px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+                                            📥 Unduh
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- 🆕 Tombol "Lihat Semua" kalau ada lebih dari 3 --}}
+                            @if (($totalSiapDownload ?? $siapDownload->count()) > 3)
+                                <a href="{{ route('warga.surat.index', ['kategori' => 'proses']) }}"
+                                   style="display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:10px 20px; background:white; color:#065f46; border:1.5px solid #6ee7b7; border-radius:10px; text-decoration:none; font-size:13px; font-weight:700; transition:0.15s;"
+                                   onmouseover="this.style.background='#f0fdf4'; this.style.transform='translateY(-1px)'"
+                                   onmouseout="this.style.background='white'; this.style.transform='translateY(0)'">
+                                    📋 Lihat Semua {{ $totalSiapDownload ?? $siapDownload->count() }} Surat Siap Diunduh
+                                    <span style="font-size:14px;">→</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
             {{-- NOTIFIKASI SURAT SEDANG DIPROSES --}}
             @if ($sedangDiproses > 0)
                 <div style="background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:1px solid #fcd34d; border-left:5px solid #f59e0b; border-radius:14px; padding:16px 22px; margin-bottom:20px; display:flex; align-items:center; gap:14px;">
@@ -182,14 +239,27 @@
                                 if (str_contains($lay, 'domisili')) $layananIcon = '🏠';
                                 elseif (str_contains($lay, 'sktm') || str_contains($lay, 'tidak mampu')) $layananIcon = '🤝';
                                 elseif (str_contains($lay, 'sku') || str_contains($lay, 'usaha')) $layananIcon = '🏪';
+
+                                // 🆕 BADGE NEW
+                                $isBaru = $item->rt_verified_at
+                                          && $item->rt_verified_at->diffInHours(now()) < 24
+                                          && in_array($item->status, ['diverifikasi_rt', 'diproses_kelurahan']);
                             @endphp
                             <div style="padding:16px 24px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; gap:16px; transition:0.15s;" onmouseover="this.style.background='#fafbfc'" onmouseout="this.style.background='white'">
                                 <div style="flex-shrink:0; width:44px; height:44px; background:#f3f4f6; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px;">
                                     {{ $layananIcon }}
                                 </div>
                                 <div style="flex:1; min-width:0;">
-                                    <div style="font-family:monospace; font-size:11.5px; font-weight:700; color:#1e40af; margin-bottom:2px;">
-                                        {{ $item->nomor_pengajuan }}
+                                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">
+                                        <span style="font-family:monospace; font-size:11.5px; font-weight:700; color:#1e40af;">
+                                            {{ $item->nomor_pengajuan }}
+                                        </span>
+                                        {{-- 🆕 BADGE NEW --}}
+                                        @if ($isBaru)
+                                            <span style="padding:2px 6px; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:white; border-radius:4px; font-size:9px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
+                                                ● NEW
+                                            </span>
+                                        @endif
                                     </div>
                                     <div style="font-size:13px; color:#374151; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
                                         {{ $item->keperluan }}

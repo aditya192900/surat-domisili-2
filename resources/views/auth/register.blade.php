@@ -45,15 +45,7 @@
             border-radius: 50%;
         }
 
-        /* Brand */
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            position: relative;
-            z-index: 1;
-            margin-bottom: 40px;
-        }
+        .brand { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; margin-bottom: 40px; }
         .brand-icon {
             width: 52px; height: 52px;
             background: rgba(255,255,255,0.15);
@@ -67,60 +59,30 @@
         .brand-text h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 2px; }
         .brand-text p { font-size: 12.5px; opacity: 0.8; letter-spacing: 0.3px; }
 
-        /* Hero */
-        .hero-text {
-            position: relative;
-            z-index: 1;
-            margin-bottom: 32px;
-        }
+        .hero-text { position: relative; z-index: 1; margin-bottom: 32px; }
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             padding: 6px 14px;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 50px;
-            font-size: 11.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 11.5px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
             margin-bottom: 18px;
         }
-        .hero-text h2 {
-            font-size: 36px;
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: -0.8px;
-            margin-bottom: 14px;
-        }
+        .hero-text h2 { font-size: 36px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; margin-bottom: 14px; }
         .hero-text h2 span {
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .hero-text p {
-            font-size: 14.5px;
-            opacity: 0.9;
-            line-height: 1.7;
-            max-width: 460px;
-        }
+        .hero-text p { font-size: 14.5px; opacity: 0.9; line-height: 1.7; max-width: 460px; }
 
-        /* Benefit List */
-        .benefits {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
+        .benefits { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
         .benefit-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
+            display: flex; align-items: flex-start; gap: 14px;
             padding: 14px 18px;
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(20px);
@@ -128,65 +90,34 @@
             border: 1px solid rgba(255,255,255,0.12);
             transition: 0.2s;
         }
-        .benefit-item:hover {
-            background: rgba(255,255,255,0.14);
-            transform: translateX(4px);
-        }
+        .benefit-item:hover { background: rgba(255,255,255,0.14); transform: translateX(4px); }
         .benefit-icon {
-            flex-shrink: 0;
-            width: 40px; height: 40px;
+            flex-shrink: 0; width: 40px; height: 40px;
             background: linear-gradient(135deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.2) 100%);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 20px;
             border: 1px solid rgba(251,191,36,0.3);
         }
-        .benefit-text h4 {
-            font-size: 13.5px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-        .benefit-text p {
-            font-size: 12px;
-            opacity: 0.75;
-            line-height: 1.5;
-        }
+        .benefit-text h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+        .benefit-text p { font-size: 12px; opacity: 0.75; line-height: 1.5; }
 
-        /* Stats mini */
         .mini-stats {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            position: relative; z-index: 1;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
             padding-top: 22px;
             border-top: 1px solid rgba(255,255,255,0.12);
         }
-        .mini-stat {
-            text-align: center;
-        }
-        .mini-stat .num {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 2px;
-        }
-        .mini-stat .lbl {
-            font-size: 10.5px;
-            opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
+        .mini-stat { text-align: center; }
+        .mini-stat .num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 2px; }
+        .mini-stat .lbl { font-size: 10.5px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
         /* ================================================
            SISI KANAN - FORM
            ================================================ */
         .side-right {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             padding: 40px 30px;
             background: #f9fafb;
             overflow-y: auto;
@@ -205,19 +136,13 @@
             margin-bottom: 18px;
         }
         .master-data-title {
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #065f46;
+            font-size: 12.5px; font-weight: 700; color: #065f46;
             margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            display: flex; align-items: center; gap: 6px;
         }
         .master-data-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            padding: 5px 0;
+            display: flex; justify-content: space-between;
+            font-size: 13px; padding: 5px 0;
             border-bottom: 1px solid #d1fae5;
         }
         .master-data-row:last-child { border-bottom: none; }
@@ -226,11 +151,8 @@
 
         .form-group { margin-bottom: 14px; }
         .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 6px;
+            display: block; font-size: 13px; font-weight: 600;
+            color: #374151; margin-bottom: 6px;
         }
         .form-group label .req { color: #dc2626; }
         .form-input {
@@ -250,9 +172,117 @@
             box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
         }
         .form-input.error { border-color: #dc2626; }
+        .form-input.success { border-color: #10b981; background: #f0fdf4; }
         .error-msg { font-size: 12px; color: #dc2626; margin-top: 4px; }
 
-        /* Checkbox Syarat & Ketentuan */
+        /* 🆕 NIK INPUT GROUP */
+        .nik-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .nik-input-group .form-input {
+            flex: 1;
+            font-family: monospace;
+            letter-spacing: 1.5px;
+            font-size: 15px;
+        }
+        .btn-cek-nik {
+            padding: 11px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+            transition: 0.2s;
+        }
+        .btn-cek-nik:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+        }
+        .btn-cek-nik:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 🆕 HASIL CEK NIK */
+        .cek-result {
+            margin-top: 10px;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 13px;
+            animation: slideDown 0.3s ease-out;
+            display: none;
+        }
+        .cek-result.show { display: block; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cek-result.found {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1.5px solid #10b981;
+        }
+        .cek-result.notfound {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1.5px solid #ef4444;
+        }
+        .cek-result.warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1.5px solid #f59e0b;
+        }
+        .cek-result-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .cek-result-icon {
+            font-size: 20px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .cek-result-title {
+            font-weight: 800;
+            font-size: 13.5px;
+            margin-bottom: 2px;
+        }
+        .cek-result.found .cek-result-title { color: #065f46; }
+        .cek-result.notfound .cek-result-title { color: #991b1b; }
+        .cek-result.warning .cek-result-title { color: #78350f; }
+        .cek-result-message {
+            font-size: 12.5px;
+            line-height: 1.5;
+        }
+        .cek-result.found .cek-result-message { color: #047857; }
+        .cek-result.notfound .cek-result-message { color: #7f1d1d; }
+        .cek-result.warning .cek-result-message { color: #92400e; }
+        .cek-result-data {
+            background: white;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .cek-result-data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            gap: 10px;
+        }
+        .cek-result-data-label { color: #6b7280; }
+        .cek-result-data-value { font-weight: 700; color: #111827; text-align: right; }
+
+        /* Syarat & Ketentuan */
         .syarat-box {
             background: #f9fafb;
             border: 1.5px solid #e5e7eb;
@@ -261,36 +291,22 @@
             margin: 18px 0;
             transition: 0.2s;
         }
-        .syarat-box.checked {
-            background: #eff6ff;
-            border-color: #93c5fd;
-        }
-        .syarat-box.error {
-            background: #fef2f2;
-            border-color: #fecaca;
-        }
+        .syarat-box.checked { background: #eff6ff; border-color: #93c5fd; }
+        .syarat-box.error { background: #fef2f2; border-color: #fecaca; }
         .syarat-checkbox {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            display: flex; align-items: flex-start; gap: 10px;
             cursor: pointer;
         }
         .syarat-checkbox input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
             accent-color: #2563eb;
             cursor: pointer;
             margin-top: 1px;
             flex-shrink: 0;
         }
-        .syarat-label {
-            font-size: 13px;
-            color: #374151;
-            line-height: 1.5;
-        }
+        .syarat-label { font-size: 13px; color: #374151; line-height: 1.5; }
         .syarat-link {
-            color: #2563eb;
-            font-weight: 700;
+            color: #2563eb; font-weight: 700;
             cursor: pointer;
             text-decoration: underline;
             text-decoration-style: dotted;
@@ -316,26 +332,15 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(37,99,235,0.4);
         }
-        .btn-register:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+        .btn-register:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
         .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
             margin: 22px 0;
-            color: #9ca3af;
-            font-size: 12px;
+            color: #9ca3af; font-size: 12px;
         }
         .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
+            content: ''; flex: 1; height: 1px; background: #e5e7eb;
         }
         .login-box {
             text-align: center;
@@ -350,80 +355,53 @@
         .login-box a:hover { text-decoration: underline; }
         .back-home { text-align: center; margin-top: 20px; }
         .back-home a {
-            font-size: 13px;
-            color: #6b7280;
+            font-size: 13px; color: #6b7280;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .back-home a:hover { color: #2563eb; }
 
-        /* ================================================
-           MODAL SYARAT & KETENTUAN
-           ================================================ */
+        /* MODAL */
         .modal-overlay {
             display: none;
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             z-index: 9999;
-            align-items: center;
-            justify-content: center;
+            align-items: center; justify-content: center;
             padding: 20px;
             animation: fadeIn 0.2s ease;
         }
         .modal-overlay.active { display: flex; }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content {
             background: white;
             border-radius: 20px;
             max-width: 600px;
             width: 100%;
             max-height: 85vh;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.3s ease;
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .modal-header {
             padding: 22px 26px;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             flex-shrink: 0;
         }
-        .modal-header h3 {
-            font-size: 17px;
-            font-weight: 800;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .modal-header h3 { font-size: 17px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; }
         .modal-close {
             background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
+            border: none; color: white;
+            width: 32px; height: 32px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
         }
         .modal-close:hover { background: rgba(255,255,255,0.25); }
@@ -434,25 +412,15 @@
             line-height: 1.7;
             color: #374151;
         }
-        .modal-body h4 {
-            font-size: 14px;
-            font-weight: 700;
-            color: #111827;
-            margin: 18px 0 8px 0;
-        }
+        .modal-body h4 { font-size: 14px; font-weight: 700; color: #111827; margin: 18px 0 8px 0; }
         .modal-body h4:first-child { margin-top: 0; }
         .modal-body p { margin-bottom: 10px; }
-        .modal-body ul {
-            margin: 8px 0 12px 22px;
-            padding: 0;
-        }
+        .modal-body ul { margin: 8px 0 12px 22px; padding: 0; }
         .modal-body li { margin-bottom: 6px; }
         .modal-footer {
             padding: 16px 26px;
             border-top: 1px solid #f3f4f6;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            display: flex; gap: 10px; justify-content: flex-end;
             flex-shrink: 0;
             background: #fafbfc;
         }
@@ -482,14 +450,8 @@
             transition: 0.2s;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
-        .btn-modal-agree:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37,99,235,0.4);
-        }
+        .btn-modal-agree:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.4); }
 
-        /* ================================================
-           RESPONSIVE
-           ================================================ */
         @media (max-width: 900px) {
             .register-wrapper { flex-direction: column; }
             .side-left { padding: 40px 30px; min-height: auto; }
@@ -511,6 +473,8 @@
             .modal-body { padding: 20px; }
             .modal-footer { padding: 14px 20px; flex-direction: column; }
             .modal-footer button { width: 100%; }
+            .nik-input-group { flex-direction: column; }
+            .btn-cek-nik { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -522,7 +486,6 @@
     <div class="side-left">
 
         <div>
-            {{-- Brand --}}
             <div class="brand">
                 <div class="brand-icon">📄</div>
                 <div class="brand-text">
@@ -531,11 +494,8 @@
                 </div>
             </div>
 
-            {{-- Hero Text --}}
             <div class="hero-text">
-                <div class="hero-badge">
-                    ✨ GRATIS & MUDAH
-                </div>
+                <div class="hero-badge">✨ GRATIS & MUDAH</div>
                 <h2>
                     Daftar Sekali,<br>
                     <span>Nikmati Kemudahan</span><br>
@@ -547,7 +507,6 @@
                 </p>
             </div>
 
-            {{-- Benefits --}}
             <div class="benefits">
                 <div class="benefit-item">
                     <div class="benefit-icon">⚡</div>
@@ -573,7 +532,6 @@
             </div>
         </div>
 
-        {{-- Mini Stats --}}
         <div class="mini-stats">
             <div class="mini-stat">
                 <div class="num">100%</div>
@@ -600,7 +558,6 @@
                 <p>Lengkapi data untuk mendaftar akun pelayanan</p>
             </div>
 
-            {{-- INFO MASTER DATA --}}
             @if (isset($masterData) && $masterData)
                 <div class="master-data-box">
                     <div class="master-data-title">
@@ -642,17 +599,28 @@
             <form method="POST" action="{{ route('register') }}" id="formRegister">
                 @csrf
 
-                {{-- NIK --}}
+                {{-- NIK + TOMBOL CEK --}}
                 <div class="form-group">
                     <label for="nik">NIK (16 digit) <span class="req">*</span></label>
-                    <input id="nik" type="text" name="nik" value="{{ old('nik', $nik ?? '') }}"
-                           class="form-input @error('nik') error @enderror"
-                           placeholder="3201010101010001"
-                           maxlength="16" pattern="[0-9]{16}" inputmode="numeric"
-                           required autofocus>
-                    <div style="font-size:11.5px; color:#6b7280; margin-top:6px; line-height:1.5;">
-                        NIK harus sudah terdaftar oleh Ketua RT Anda. Cek dulu di <a href="{{ route('landing') }}#cek-nik" style="color:#2563eb; font-weight:600;">halaman beranda</a>.
+
+                    <div class="nik-input-group">
+                        <input id="nik" type="text" name="nik" value="{{ old('nik', $nik ?? '') }}"
+                               class="form-input @error('nik') error @enderror"
+                               placeholder="3201010101010001"
+                               maxlength="16" pattern="[0-9]{16}" inputmode="numeric"
+                               required autofocus autocomplete="off">
+                        <button type="button" class="btn-cek-nik" id="btnCekNik" onclick="cekNikRegister()">
+                            🔍 Cek NIK
+                        </button>
                     </div>
+
+                    <div style="font-size:11.5px; color:#6b7280; margin-top:6px; line-height:1.5;">
+                        💡 Klik <strong>Cek NIK</strong> untuk memastikan NIK Anda sudah terdaftar oleh Ketua RT.
+                    </div>
+
+                    {{-- HASIL CEK NIK --}}
+                    <div class="cek-result" id="cekResult"></div>
+
                     @error('nik') <div class="error-msg">{{ $message }}</div> @enderror
                 </div>
 
@@ -732,7 +700,7 @@
 
 </div>
 
-{{-- ============ MODAL SYARAT & KETENTUAN ============ --}}
+{{-- MODAL SYARAT & KETENTUAN --}}
 <div class="modal-overlay" id="modalSyarat">
     <div class="modal-content">
         <div class="modal-header">
@@ -805,7 +773,7 @@
     </div>
 </div>
 
-{{-- ============ MODAL KEBIJAKAN PRIVASI ============ --}}
+{{-- MODAL KEBIJAKAN PRIVASI --}}
 <div class="modal-overlay" id="modalPrivasi">
     <div class="modal-content">
         <div class="modal-header">
@@ -873,40 +841,159 @@
     // Auto-format NIK
     document.getElementById('nik')?.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '').slice(0, 16);
+        // Sembunyikan hasil cek kalau NIK diubah
+        hideCekResult();
     });
 
-    // Buka modal
-    function bukaModalSyarat(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        document.getElementById('modalSyarat').classList.add('active');
-    }
-    function bukaModalPrivasi(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        document.getElementById('modalPrivasi').classList.add('active');
-    }
-    function tutupModal(id) {
-        document.getElementById(id).classList.remove('active');
+    // 🆕 AUTO CHECK setelah 16 digit diisi (dengan debounce)
+    let autoCheckTimer = null;
+    document.getElementById('nik')?.addEventListener('input', function() {
+        if (this.value.length === 16) {
+            clearTimeout(autoCheckTimer);
+            autoCheckTimer = setTimeout(function() {
+                cekNikRegister();
+            }, 500); // Tunggu 500ms setelah user berhenti mengetik
+        }
+    });
+
+    // Enter di input NIK → cek
+    document.getElementById('nik')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            cekNikRegister();
+        }
+    });
+
+    // 🆕 FUNGSI CEK NIK
+    function cekNikRegister() {
+        const input = document.getElementById('nik');
+        const btn = document.getElementById('btnCekNik');
+        const result = document.getElementById('cekResult');
+        const nik = input.value.trim();
+
+        // Validasi dasar
+        if (!nik) {
+            showCekResult('warning', '⚠️', 'NIK Belum Diisi', 'Silakan masukkan NIK 16 digit terlebih dahulu.');
+            input.focus();
+            return;
+        }
+        if (!/^\d{16}$/.test(nik)) {
+            showCekResult('warning', '⚠️', 'NIK Tidak Valid', 'NIK harus terdiri dari 16 digit angka.');
+            input.focus();
+            return;
+        }
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Memeriksa...';
+        result.classList.remove('show');
+
+        fetch('{{ route("cek-nik") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ nik: nik })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '🔍 Cek NIK';
+
+            if (data.status === 'found') {
+                // NIK terdaftar & belum punya akun
+                input.classList.add('success');
+                input.classList.remove('error');
+
+                let dataHtml = '<div class="cek-result-data">';
+                if (data.data) {
+                    dataHtml += `<div class="cek-result-data-row"><span class="cek-result-data-label">Nama</span><span class="cek-result-data-value">${data.data.nama || '-'}</span></div>`;
+                    dataHtml += `<div class="cek-result-data-row"><span class="cek-result-data-label">RT / RW</span><span class="cek-result-data-value">${data.data.rt || '-'} / ${data.data.rw || '-'}</span></div>`;
+                }
+                dataHtml += '</div>';
+
+                showCekResult('found', '✅', 'NIK Terdaftar oleh RT',
+                    'NIK Anda sudah terdaftar. Silakan lanjutkan mengisi form di bawah.' + dataHtml);
+
+            } else if (data.status === 'already_registered') {
+                // NIK sudah terdaftar & sudah punya akun
+                input.classList.remove('success', 'error');
+
+                let dataHtml = '<div class="cek-result-data">';
+                dataHtml += `<div class="cek-result-data-row"><span class="cek-result-data-label">Nama Terdaftar</span><span class="cek-result-data-value">${data.nama || '-'}</span></div>`;
+                dataHtml += '</div>';
+
+                showCekResult('warning', '⚠️', 'NIK Sudah Punya Akun',
+                    'NIK ini sudah terdaftar sebagai akun pelayanan. Silakan login menggunakan akun yang sudah ada.' + dataHtml);
+
+                // Tambahkan tombol login
+                setTimeout(() => {
+                    const r = document.getElementById('cekResult');
+                    const btnLogin = document.createElement('a');
+                    btnLogin.href = '{{ route("login") }}';
+                    btnLogin.style.cssText = 'display:inline-block; margin-top:10px; padding:8px 18px; background:linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color:white; border-radius:8px; text-decoration:none; font-size:12.5px; font-weight:700;';
+                    btnLogin.textContent = '🔑 Login Sekarang';
+                    r.appendChild(btnLogin);
+                }, 100);
+
+            } else {
+                // NIK tidak terdaftar
+                input.classList.add('error');
+                input.classList.remove('success');
+
+                showCekResult('notfound', '❌', 'NIK Tidak Terdaftar',
+                    'NIK Anda belum terdaftar oleh Ketua RT. Silakan hubungi Ketua RT setempat untuk mendaftarkan NIK Anda terlebih dahulu.');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '🔍 Cek NIK';
+            console.error(err);
+            showCekResult('warning', '⚠️', 'Gagal Memeriksa',
+                'Terjadi kesalahan saat memeriksa NIK. Silakan coba lagi.');
+        });
     }
 
-    // Setuju dari modal → auto-check checkbox
+    // Helper: tampilkan hasil cek
+    function showCekResult(type, icon, title, message) {
+        const result = document.getElementById('cekResult');
+        result.className = 'cek-result show ' + type;
+        result.innerHTML = `
+            <div class="cek-result-header">
+                <div class="cek-result-icon">${icon}</div>
+                <div>
+                    <div class="cek-result-title">${title}</div>
+                    <div class="cek-result-message">${message}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function hideCekResult() {
+        const result = document.getElementById('cekResult');
+        result.classList.remove('show');
+        document.getElementById('nik').classList.remove('success', 'error');
+    }
+
+    // Modal
+    function bukaModalSyarat(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('modalSyarat').classList.add('active'); }
+    function bukaModalPrivasi(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('modalPrivasi').classList.add('active'); }
+    function tutupModal(id) { document.getElementById(id).classList.remove('active'); }
+
     function setujuDanTutup(modalId) {
         document.getElementById('cbSyarat').checked = true;
         updateSyaratUI();
         tutupModal(modalId);
     }
 
-    // Klik area luar modal → tutup
     document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
         overlay.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
+            if (e.target === this) this.classList.remove('active');
         });
     });
 
-    // ESC → tutup semua modal
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal-overlay.active').forEach(function(m) {
@@ -915,7 +1002,7 @@
         }
     });
 
-    // Update tampilan checkbox syarat & tombol submit
+    // Checkbox syarat
     const cbSyarat = document.getElementById('cbSyarat');
     const btnRegister = document.getElementById('btnRegister');
     const syaratBox = document.getElementById('syaratBox');
@@ -931,9 +1018,9 @@
     }
 
     cbSyarat?.addEventListener('change', updateSyaratUI);
-    updateSyaratUI(); // initial state
+    updateSyaratUI();
 
-    // Loading saat submit
+    // Submit
     document.getElementById('formRegister')?.addEventListener('submit', function(e) {
         if (!cbSyarat.checked) {
             e.preventDefault();

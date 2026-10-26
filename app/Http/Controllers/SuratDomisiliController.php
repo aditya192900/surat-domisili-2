@@ -6,6 +6,7 @@ use App\Exports\SuratDomisiliExport;
 use App\Models\SuratDomisili;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -76,29 +77,40 @@ class SuratDomisiliController extends Controller
     {
         $userId = auth()->id();
 
+        $perStatus = DB::table('surat_domisili')
+            ->where('user_id', $userId)
+            ->selectRaw('status, COUNT(*) as jumlah')
+            ->groupBy('status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
+
         $statistik = [
-            'total'   => SuratDomisili::where('user_id', $userId)->count(),
-            'proses'  => SuratDomisili::where('user_id', $userId)
-                ->whereIn('status', ['diajukan_ke_rt', 'diverifikasi_rt', 'diproses_kelurahan'])
-                ->count(),
-            'selesai' => SuratDomisili::where('user_id', $userId)
-                ->where('status', 'selesai')
-                ->count(),
-            'ditolak' => SuratDomisili::where('user_id', $userId)
-                ->whereIn('status', ['ditolak_rt', 'ditolak_kelurahan'])
-                ->count(),
+            'total'   => array_sum($perStatus),
+            'proses'  => ($perStatus['diajukan_ke_rt'] ?? 0) + ($perStatus['diverifikasi_rt'] ?? 0) + ($perStatus['diproses_kelurahan'] ?? 0),
+            'selesai' => $perStatus['selesai'] ?? 0,
+            'ditolak' => ($perStatus['ditolak_rt'] ?? 0) + ($perStatus['ditolak_kelurahan'] ?? 0),
         ];
+
+        $sedangDiproses = $statistik['proses'];
 
         $terbaru = SuratDomisili::where('user_id', $userId)
             ->latest()
             ->take(3)
             ->get();
 
-        $sedangDiproses = SuratDomisili::where('user_id', $userId)
-            ->whereIn('status', ['diajukan_ke_rt', 'diverifikasi_rt', 'diproses_kelurahan'])
+        $siapDownload = SuratDomisili::where('user_id', $userId)
+            ->whereNotNull('rt_verified_at')
+            ->whereIn('status', ['diverifikasi_rt', 'diproses_kelurahan', 'selesai'])
+            ->latest('rt_verified_at')
+            ->take(3)
+            ->get();
+
+        $totalSiapDownload = SuratDomisili::where('user_id', $userId)
+            ->whereNotNull('rt_verified_at')
+            ->whereIn('status', ['diverifikasi_rt', 'diproses_kelurahan', 'selesai'])
             ->count();
 
-        return view('warga.dashboard', compact('statistik', 'terbaru', 'sedangDiproses'));
+        return view('warga.dashboard', compact('statistik', 'terbaru', 'sedangDiproses', 'siapDownload', 'totalSiapDownload'));
     }
 
     public function create()
@@ -133,55 +145,131 @@ class SuratDomisiliController extends Controller
             $surat->save();
         }
 
+        if (
+            in_array($user->role, ['kelurahan', 'admin'], true)
+            && $surat->status === 'diverifikasi_rt'
+            && is_null($surat->notif_diverifikasi_rt_read_at)
+        ) {
+            $surat->notif_diverifikasi_rt_read_at = now();
+            $surat->save();
+        }
+
         $surat->load('warga', 'rtVerifier', 'kelurahanProcessor');
 
         return view('surat.detail', compact('surat'));
     }
 
-    public function store(Request $request)
+           public function store(Request $request)
     {
         $request->validate([
-            'jenis_surat' => 'required|string|in:Surat Keterangan Domisili,Surat Keterangan Tidak Mampu (SKTM),Surat Keterangan Usaha (SKU)',
-            'keperluan'   => 'nullable|string|max:255',
-            'ktp'         => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'kk'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'foto'        => 'required|file|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'foto.required' => 'Pas foto wajib diupload.',
-            'foto.mimes'    => 'Pas foto harus berformat JPG atau PNG.',
+            'jenis_surat'     => 'required|string|in:Surat Keterangan Domisili,Surat Keterangan Tidak Mampu (SKTM),Pengantar Nikah,Surat Pernyataan Ahli Waris,Surat Keterangan Belum Menikah,Surat Keterangan Belum Memiliki Rumah',
+            'keperluan'       => 'nullable|string|max:255',
+            'ktp'             => 'nullable',
+            'ktp.*'           => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'kk'              => 'nullable',
+            'kk.*'            => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'foto'            => 'nullable',
+            'foto.*'          => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'reapply_from_id' => 'nullable|exists:surat_domisili,id',
         ]);
 
         return DB::transaction(function () use ($request) {
-            $ktp  = $request->file('ktp')->store('private/ktp');
-            $kk   = $request->file('kk')->store('private/kk');
-            $foto = $request->file('foto')->store('private/foto');
+            $saveFiles = function ($fileInput, $folder) {
+                $paths = [];
+                if ($fileInput) {
+                    $files = is_array($fileInput) ? $fileInput : [$fileInput];
+                    foreach ($files as $file) {
+                        $paths[] = $file->store('private/' . $folder);
+                    }
+                }
+                return $paths;
+            };
+
+            $suratLama = null;
+            if ($request->filled('reapply_from_id')) {
+                $suratLama = SuratDomisili::find($request->reapply_from_id);
+                if ($suratLama && $suratLama->user_id !== auth()->id()) $suratLama = null;
+            }
+
+            $ktpPaths = $request->hasFile('ktp') ? $saveFiles($request->file('ktp'), 'ktp') : ($suratLama ? (json_decode($suratLama->ktp_path, true) ?? [$suratLama->ktp_path]) : []);
+            $kkPaths  = $request->hasFile('kk') ? $saveFiles($request->file('kk'), 'kk') : ($suratLama ? (json_decode($suratLama->kk_path, true) ?? [$suratLama->kk_path]) : []);
+            $fotoPaths = $request->hasFile('foto') ? $saveFiles($request->file('foto'), 'foto') : ($suratLama ? (json_decode($suratLama->foto_path, true) ?? [$suratLama->foto_path]) : []);
+
+            // VALIDASI KHUSUS BERDASARKAN JENIS SURAT
+                       if ($request->jenis_surat === 'Pengantar Nikah') {
+                if (count($ktpPaths) < 3 || count($kkPaths) < 3 || count($fotoPaths) < 3) {
+                    return back()->withInput()->with('error', 'Untuk Pengantar Nikah, wajib mengupload 3 KTP, 3 KK, Pas Foto, Surat Sehat, dan Bukti PBB.');
+                }
+            } elseif ($request->jenis_surat === 'Surat Pernyataan Ahli Waris') {
+                if (count($ktpPaths) < 3 || count($kkPaths) < 1 || count($fotoPaths) < 2) {
+                    return back()->withInput()->with('error', 'Untuk Ahli Waris, wajib mengupload 3 KTP (Ahli Waris + 2 Saksi), 1 KK, Akta Kematian, dan Bukti Lunas PBB.');
+                }
+            } else {
+                if (empty($ktpPaths) || empty($kkPaths) || empty($fotoPaths)) {
+                    return back()->withInput()->with('error', 'Semua dokumen utama wajib diisi.');
+                }
+            }
 
             $keperluan = $request->jenis_surat;
-            if ($request->filled('keperluan')) {
-                $keperluan .= ' — ' . $request->keperluan;
-            }
+            if ($request->filled('keperluan')) $keperluan .= ' — ' . $request->keperluan;
 
             $surat = SuratDomisili::create([
                 'nomor_pengajuan' => 'SD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6)),
                 'user_id'         => auth()->id(),
+                'reapply_from_id' => $suratLama ? $suratLama->id : null,
                 'keperluan'       => $keperluan,
-                'ktp_path'        => $ktp,
-                'kk_path'         => $kk,
-                'foto_path'       => $foto,
+                'ktp_path'        => json_encode($ktpPaths),
+                'kk_path'         => json_encode($kkPaths),
+                'foto_path'       => json_encode($fotoPaths),
                 'status'          => 'diajukan_ke_rt',
             ]);
 
-            ActivityLogger::log(
-                'ajukan_surat',
-                "Warga mengajukan surat {$surat->nomor_pengajuan}",
-                $surat,
-                null,
-                ['status' => 'diajukan_ke_rt']
-            );
-
-            return redirect()->route('warga.surat.index')
-                ->with('success', "Pengajuan {$surat->nomor_pengajuan} berhasil dikirim ke RT.");
+            ActivityLogger::log('ajukan_surat', "Warga mengajukan surat {$surat->nomor_pengajuan}", $surat, null, ['status' => 'diajukan_ke_rt']);
+            return redirect()->route('warga.surat.index')->with('success', "Pengajuan berhasil dikirim ke RT.");
         });
+    }
+    public function reapply(SuratDomisili $surat)
+    {
+        if ($surat->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak mengajukan ulang surat ini.');
+        }
+
+        if (!in_array($surat->status, ['ditolak_rt', 'ditolak_kelurahan'])) {
+            return redirect()->route('warga.surat.index')
+                ->with('error', 'Hanya surat yang ditolak yang bisa diajukan ulang.');
+        }
+
+        $sudahReapply = SuratDomisili::where('reapply_from_id', $surat->id)
+            ->whereNotIn('status', ['ditolak_rt', 'ditolak_kelurahan'])
+            ->exists();
+
+        if ($sudahReapply) {
+            return redirect()->route('warga.surat.index')
+                ->with('error', 'Anda sudah mengajukan ulang surat ini. Silakan cek "Surat Saya".');
+        }
+
+        $oldJenis = '';
+        foreach ([
+            'Surat Keterangan Domisili',
+            'Surat Keterangan Tidak Mampu (SKTM)',
+            'Surat Keterangan Usaha (SKU)',
+        ] as $jenis) {
+            if (str_contains($surat->keperluan, $jenis)) {
+                $oldJenis = $jenis;
+                break;
+            }
+        }
+
+        $keterangan = '';
+        if (str_contains($surat->keperluan, ' — ')) {
+            $keterangan = trim(explode(' — ', $surat->keperluan, 2)[1] ?? '');
+        }
+
+        return view('warga.create', [
+            'suratLama'     => $surat,
+            'oldJenisSurat' => $oldJenis,
+            'oldKeperluan'  => $keterangan,
+        ]);
     }
 
     // ==========================================
@@ -283,21 +371,139 @@ class SuratDomisiliController extends Controller
 
         $data = $query->latest('rt_verified_at')->paginate(15)->withQueryString();
 
-        $baseQuery = SuratDomisili::whereHas('warga', function ($q) use ($rt) {
-            $q->where('rt', $rt);
-        });
+        $perStatus = DB::table('surat_domisili')
+            ->join('users', 'surat_domisili.user_id', '=', 'users.id')
+            ->where('users.rt', $rt)
+            ->selectRaw('surat_domisili.status, COUNT(*) as jumlah')
+            ->groupBy('surat_domisili.status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
 
         $statistik = [
-            'diverifikasi_rt'    => (clone $baseQuery)->where('status', 'diverifikasi_rt')->count(),
-            'ditolak_rt'         => (clone $baseQuery)->where('status', 'ditolak_rt')->count(),
-            'diproses_kelurahan' => (clone $baseQuery)->where('status', 'diproses_kelurahan')->count(),
-            'selesai'            => (clone $baseQuery)->where('status', 'selesai')->count(),
-            'ditolak_kelurahan'  => (clone $baseQuery)->where('status', 'ditolak_kelurahan')->count(),
+            'diverifikasi_rt'    => $perStatus['diverifikasi_rt'] ?? 0,
+            'ditolak_rt'         => $perStatus['ditolak_rt'] ?? 0,
+            'diproses_kelurahan' => $perStatus['diproses_kelurahan'] ?? 0,
+            'selesai'            => $perStatus['selesai'] ?? 0,
+            'ditolak_kelurahan'  => $perStatus['ditolak_kelurahan'] ?? 0,
         ];
 
         return view('rt.riwayat', compact('data', 'statistik'));
     }
 
+    public function exportExcelRt(Request $request)
+    {
+        $rt = auth()->user()->rt;
+
+        $filter = [
+            'rt'     => $rt,
+            'status' => $request->status,
+            'cari'   => $request->cari,
+        ];
+
+        $filename = 'Laporan-RT-' . $rt . '-' . now()->format('Ymd-His') . '.xlsx';
+
+        ActivityLogger::log(
+            'export_excel_rt',
+            "RT {$rt} mengekspor laporan Excel",
+            null
+        );
+
+        return Excel::download(new SuratDomisiliExport($filter), $filename);
+    }
+    // ==========================================
+    // CETAK PDF RIWAYAT RT
+    // ==========================================
+    public function cetakPdfRt(Request $request)
+    {
+        $rt = auth()->user()->rt;
+
+        $query = SuratDomisili::with('warga', 'kelurahanProcessor')
+            ->whereHas('warga', function ($q) use ($rt) {
+                $q->where('rt', $rt);
+            })
+            ->whereIn('status', [
+                'diverifikasi_rt',
+                'ditolak_rt',
+                'diproses_kelurahan',
+                'selesai',
+                'ditolak_kelurahan',
+            ]);
+
+        // Samakan filter dengan halaman web
+        if ($request->filled('kategori')) {
+            $kategori = $request->kategori;
+            switch ($kategori) {
+                case 'diproses':
+                    $query->whereIn('status', ['diverifikasi_rt', 'diproses_kelurahan']);
+                    break;
+                case 'selesai':
+                    $query->where('status', 'selesai');
+                    break;
+                case 'ditolak':
+                    $query->whereIn('status', ['ditolak_rt', 'ditolak_kelurahan']);
+                    break;
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('jenis')) {
+            $jenis = $request->jenis;
+            $query->where(function ($q) use ($jenis) {
+                if ($jenis === 'domisili') {
+                    $q->where('keperluan', 'like', '%Domisili%');
+                } elseif ($jenis === 'sktm') {
+                    $q->where(function ($sub) {
+                        $sub->where('keperluan', 'like', '%SKTM%')
+                            ->orWhere('keperluan', 'like', '%Tidak Mampu%');
+                    });
+                } elseif ($jenis === 'sku') {
+                    $q->where(function ($sub) {
+                        $sub->where('keperluan', 'like', '%SKU%')
+                            ->orWhere('keperluan', 'like', '%Usaha%');
+                    });
+                }
+            });
+        }
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->where('nomor_pengajuan', 'like', "%{$cari}%")
+                  ->orWhereHas('warga', function ($w) use ($cari) {
+                      $w->where('name', 'like', "%{$cari}%");
+                  });
+            });
+        }
+
+        $data = $query->latest('rt_verified_at')->get();
+
+        // Ambil data user RT untuk kop surat
+        $rtUser = auth()->user();
+        $namaKelurahan = setting('nama_kelurahan', 'Kelurahan Sungai Asam');
+        $namaLurah = setting('nama_lurah', 'Lurah');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.riwayat-rt', [
+            'data'          => $data,
+            'rtUser'        => $rtUser,
+            'namaKelurahan' => $namaKelurahan,
+            'namaLurah'     => $namaLurah,
+            'filter'        => $request->all(),
+        ]);
+
+        $pdf->setPaper('A4', 'landscape');
+
+        ActivityLogger::log(
+            'cetak_pdf_rt',
+            "RT {$rt} mencetak laporan PDF riwayat surat",
+            null
+        );
+
+        $filename = 'Laporan-Riwayat-RT-' . $rt . '-' . now()->format('Ymd-His') . '.pdf';
+        return $pdf->download($filename);
+    }
     public function verifikasiRt(Request $request, SuratDomisili $surat)
     {
         $this->authorizeRt($surat);
@@ -314,10 +520,11 @@ class SuratDomisiliController extends Controller
 
         if ($request->aksi === 'setuju') {
             $surat->update([
-                'status'         => 'diverifikasi_rt',
-                'rt_verified_by' => auth()->id(),
-                'rt_verified_at' => now(),
-                'catatan_rt'     => $request->catatan,
+                'status'                        => 'diverifikasi_rt',
+                'rt_verified_by'                => auth()->id(),
+                'rt_verified_at'                => now(),
+                'catatan_rt'                    => $request->catatan,
+                'notif_diverifikasi_rt_read_at' => null,
             ]);
         } else {
             $surat->update([
@@ -327,6 +534,9 @@ class SuratDomisiliController extends Controller
                 'catatan_rt'     => $request->catatan,
             ]);
         }
+
+        Cache::forget('landing_statistik');
+        Cache::forget('kelurahan_statistik');
 
         ActivityLogger::log(
             'verifikasi_rt',
@@ -339,19 +549,57 @@ class SuratDomisiliController extends Controller
         return back()->with('success', 'Verifikasi RT berhasil disimpan.');
     }
 
+    public function batalkanVerifikasiRt(Request $request, SuratDomisili $surat)
+    {
+        $this->authorizeRt($surat);
+
+        if (!in_array($surat->status, ['diverifikasi_rt', 'ditolak_rt'])) {
+            return back()->with('error', 'Verifikasi tidak bisa dibatalkan karena surat sudah diproses kelurahan.');
+        }
+
+        $statusLama = $surat->status;
+        $alasan = $request->filled('alasan_batal') ? trim($request->alasan_batal) : 'Tidak ada alasan';
+
+        $surat->update([
+            'status'         => 'diajukan_ke_rt',
+            'rt_verified_by' => null,
+            'rt_verified_at' => null,
+            'catatan_rt'     => null,
+        ]);
+
+        Cache::forget('landing_statistik');
+        Cache::forget('kelurahan_statistik');
+
+        ActivityLogger::log(
+            'batalkan_verifikasi_rt',
+            "RT membatalkan verifikasi surat {$surat->nomor_pengajuan} (dari status: {$statusLama}). Alasan: {$alasan}",
+            $surat,
+            ['status' => $statusLama],
+            ['status' => 'diajukan_ke_rt']
+        );
+
+        return back()->with('success', "Verifikasi surat {$surat->nomor_pengajuan} berhasil dibatalkan.");
+    }
+
     public function cetakSuratPengantar(SuratDomisili $surat)
     {
         $user = auth()->user();
 
-        if ($user->role !== 'rt') {
-            abort(403, 'Hanya RT yang boleh mencetak surat pengantar.');
+        $bolehAkses = false;
+
+        if ($user->role === 'rt' && $user->rt === $surat->warga->rt) {
+            $bolehAkses = true;
         }
 
-        if ($user->rt !== $surat->warga->rt) {
-            abort(403, 'Anda tidak berhak mencetak surat pengantar ini.');
+        if ($user->id === $surat->user_id) {
+            $bolehAkses = true;
         }
 
-        if (!$surat->rt_verified_at || $surat->status === 'ditolak_rt') {
+        if (!$bolehAkses) {
+            abort(403, 'Anda tidak berhak mengunduh surat pengantar ini.');
+        }
+
+        if (!$surat->rt_verified_at || in_array($surat->status, ['ditolak_rt', 'ditolak_kelurahan'])) {
             abort(403, 'Surat belum diverifikasi atau sudah ditolak.');
         }
 
@@ -407,7 +655,7 @@ class SuratDomisiliController extends Controller
 
         ActivityLogger::log(
             'cetak_surat_pengantar',
-            "RT mencetak Surat Pengantar untuk {$surat->nomor_pengajuan}",
+            "Surat Pengantar diunduh oleh {$user->role}: {$surat->nomor_pengajuan}",
             $surat
         );
 
@@ -463,49 +711,73 @@ class SuratDomisiliController extends Controller
         $suratBaru = SuratDomisili::with('warga')
             ->where('status', 'diverifikasi_rt')
             ->latest('rt_verified_at')
+            ->take(10)
             ->get();
 
+        $notifBaruDariRt = SuratDomisili::with('warga', 'rtVerifier')
+            ->where('status', 'diverifikasi_rt')
+            ->whereNull('notif_diverifikasi_rt_read_at')
+            ->latest('rt_verified_at')
+            ->get();
+
+        $perStatus = DB::table('surat_domisili')
+            ->selectRaw('status, COUNT(*) as jumlah')
+            ->groupBy('status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
+
         $statistik = [
-            'baru'     => SuratDomisili::where('status', 'diverifikasi_rt')->count(),
-            'diproses' => SuratDomisili::where('status', 'diproses_kelurahan')->count(),
-            'selesai'  => SuratDomisili::where('status', 'selesai')->count(),
-            'ditolak'  => SuratDomisili::whereIn('status', ['ditolak_rt', 'ditolak_kelurahan'])->count(),
+            'baru'     => $perStatus['diverifikasi_rt'] ?? 0,
+            'diproses' => $perStatus['diproses_kelurahan'] ?? 0,
+            'selesai'  => $perStatus['selesai'] ?? 0,
+            'ditolak'  => ($perStatus['ditolak_rt'] ?? 0) + ($perStatus['ditolak_kelurahan'] ?? 0),
         ];
 
-        return view('kelurahan.index', compact('data', 'suratBaru', 'statistik'));
+        return view('kelurahan.index', compact('data', 'suratBaru', 'statistik', 'notifBaruDariRt'));
     }
 
     public function dashboardKelurahan()
     {
-        $statistik = [
-            'total'              => SuratDomisili::count(),
-            'diajukan_ke_rt'     => SuratDomisili::where('status', 'diajukan_ke_rt')->count(),
-            'diverifikasi_rt'    => SuratDomisili::where('status', 'diverifikasi_rt')->count(),
-            'diproses_kelurahan' => SuratDomisili::where('status', 'diproses_kelurahan')->count(),
-            'selesai'            => SuratDomisili::where('status', 'selesai')->count(),
-            'ditolak_rt'         => SuratDomisili::where('status', 'ditolak_rt')->count(),
-            'ditolak_kelurahan'  => SuratDomisili::where('status', 'ditolak_kelurahan')->count(),
-        ];
+        $statistik = Cache::remember('kelurahan_statistik', 180, function () {
+            $perStatus = DB::table('surat_domisili')
+                ->selectRaw('status, COUNT(*) as jumlah')
+                ->groupBy('status')
+                ->pluck('jumlah', 'status')
+                ->toArray();
 
-        $suratSelesai = SuratDomisili::where('status', 'selesai')
-            ->whereNotNull('created_at')
-            ->whereNotNull('kelurahan_processed_at')
-            ->get();
+            $rataResult = DB::table('surat_domisili')
+                ->where('status', 'selesai')
+                ->whereNotNull('created_at')
+                ->whereNotNull('kelurahan_processed_at')
+                ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, kelurahan_processed_at)) as rata')
+                ->first();
 
-        $totalJam = 0;
-        $jumlahSurat = 0;
-        foreach ($suratSelesai as $s) {
-            $totalJam += $s->created_at->diffInHours($s->kelurahan_processed_at);
-            $jumlahSurat++;
-        }
-        $rataRataJam = $jumlahSurat > 0 ? round($totalJam / $jumlahSurat, 1) : 0;
+            return [
+                'total'              => array_sum($perStatus),
+                'diajukan_ke_rt'     => $perStatus['diajukan_ke_rt'] ?? 0,
+                'diverifikasi_rt'    => $perStatus['diverifikasi_rt'] ?? 0,
+                'diproses_kelurahan' => $perStatus['diproses_kelurahan'] ?? 0,
+                'selesai'            => $perStatus['selesai'] ?? 0,
+                'ditolak_rt'         => $perStatus['ditolak_rt'] ?? 0,
+                'ditolak_kelurahan'  => $perStatus['ditolak_kelurahan'] ?? 0,
+                'rata_rata'          => $rataResult && $rataResult->rata ? round($rataResult->rata, 1) : 0,
+            ];
+        });
 
-        $terbaru = SuratDomisili::with('warga')
+        $rataRataJam = $statistik['rata_rata'];
+
+        $terbaru = SuratDomisili::with(['warga:id,name,nik,foto,rt,rw'])
             ->latest()
             ->take(10)
             ->get();
 
-        return view('kelurahan.dashboard', compact('statistik', 'rataRataJam', 'terbaru'));
+        $notifBaruDariRt = SuratDomisili::with('warga', 'rtVerifier')
+            ->where('status', 'diverifikasi_rt')
+            ->whereNull('notif_diverifikasi_rt_read_at')
+            ->latest('rt_verified_at')
+            ->get();
+
+        return view('kelurahan.dashboard', compact('statistik', 'rataRataJam', 'terbaru', 'notifBaruDariRt'));
     }
 
     public function riwayatKelurahan(Request $request)
@@ -558,13 +830,19 @@ class SuratDomisiliController extends Controller
 
         $data = $query->latest()->paginate(15)->withQueryString();
 
+        $perStatus = DB::table('surat_domisili')
+            ->selectRaw('status, COUNT(*) as jumlah')
+            ->groupBy('status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
+
         $statistik = [
-            'total'              => SuratDomisili::count(),
-            'diverifikasi_rt'    => SuratDomisili::where('status', 'diverifikasi_rt')->count(),
-            'diproses_kelurahan' => SuratDomisili::where('status', 'diproses_kelurahan')->count(),
-            'selesai'            => SuratDomisili::where('status', 'selesai')->count(),
-            'ditolak_rt'         => SuratDomisili::where('status', 'ditolak_rt')->count(),
-            'ditolak_kelurahan'  => SuratDomisili::where('status', 'ditolak_kelurahan')->count(),
+            'total'              => array_sum($perStatus),
+            'diverifikasi_rt'    => $perStatus['diverifikasi_rt'] ?? 0,
+            'diproses_kelurahan' => $perStatus['diproses_kelurahan'] ?? 0,
+            'selesai'            => $perStatus['selesai'] ?? 0,
+            'ditolak_rt'         => $perStatus['ditolak_rt'] ?? 0,
+            'ditolak_kelurahan'  => $perStatus['ditolak_kelurahan'] ?? 0,
         ];
 
         return view('kelurahan.riwayat', compact('data', 'statistik'));
@@ -704,17 +982,21 @@ class SuratDomisiliController extends Controller
 
         $dataLama = ['status' => $surat->status];
 
-        $surat->status                 = $statusMap[$request->aksi];
-        $surat->nomor_surat            = $request->nomor_surat ?? $surat->nomor_surat;
-        $surat->catatan_kelurahan      = $request->catatan;
-        $surat->kelurahan_processed_by = auth()->id();
-        $surat->kelurahan_processed_at = now();
+        $surat->status                        = $statusMap[$request->aksi];
+        $surat->nomor_surat                   = $request->nomor_surat ?? $surat->nomor_surat;
+        $surat->catatan_kelurahan             = $request->catatan;
+        $surat->kelurahan_processed_by        = auth()->id();
+        $surat->kelurahan_processed_at        = now();
+        $surat->notif_diverifikasi_rt_read_at = now();
 
         if ($request->aksi === 'tolak') {
             $surat->notif_ditolak_rt_read_at = null;
         }
 
         $surat->save();
+
+        Cache::forget('landing_statistik');
+        Cache::forget('kelurahan_statistik');
 
         ActivityLogger::log(
             'proses_kelurahan',
@@ -762,7 +1044,9 @@ class SuratDomisiliController extends Controller
             abort(404, 'File tidak ada di server.');
         }
 
-        return response()->file($fullPath);
+        return response()->file($fullPath, [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     public function cetakSurat(SuratDomisili $surat)

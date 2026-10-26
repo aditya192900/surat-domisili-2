@@ -4,234 +4,444 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Surat - {{ $nomor }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #ede9fe 100%);
+            font-family: 'Figtree', sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #ede9fe 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
+            color: #111827;
         }
-        .card { max-width: 640px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); overflow: hidden; }
-        .header-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px 30px; text-align: center; position: relative; overflow: hidden; }
-        .header-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 40px 30px; text-align: center; }
-        .header-danger  { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 40px 30px; text-align: center; }
-        .header-icon { font-size: 64px; margin-bottom: 8px; line-height: 1; }
-        .header-title { font-size: 26px; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .header-sub { font-size: 13px; opacity: 0.9; }
-        .body-content { padding: 30px; }
-        .info-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { color: #6b7280; font-weight: 500; }
-        .info-value { font-weight: 600; color: #111827; text-align: right; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .section-title { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 12px 0; display: flex; align-items: center; gap: 8px; }
-        .section-title::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
-        .timeline { position: relative; padding-left: 30px; }
-        .timeline-item { position: relative; padding-bottom: 18px; }
-        .timeline-item:last-child { padding-bottom: 0; }
-        .timeline-item::before {
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .card-header {
+            padding: 32px 30px 28px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-header::before {
             content: '';
             position: absolute;
-            left: -30px;
-            top: 4px;
-            width: 16px;
-            height: 16px;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.1);
             border-radius: 50%;
-            background: #e5e7eb;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px #e5e7eb;
         }
-        .timeline-item.done::before { background: #10b981; box-shadow: 0 0 0 2px #10b981; }
-        .timeline-item.reject::before { background: #dc2626; box-shadow: 0 0 0 2px #dc2626; }
-        .timeline-item::after {
+        .card-header::after {
             content: '';
             position: absolute;
-            left: -23px;
-            top: 20px;
+            bottom: -80px; left: -40px;
+            width: 180px; height: 180px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .header-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            line-height: 1;
+        }
+        .header-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-sub {
+            font-size: 13px;
+            opacity: 0.95;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* VARIANTS */
+        .header-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .header-info    { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); }
+        .header-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .header-danger  { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .header-neutral { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+
+        /* BODY */
+        .card-body {
+            padding: 26px 30px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 16px;
+        }
+        .row:last-child { border-bottom: none; }
+        .row-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .row-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            text-align: right;
+            word-break: break-word;
+        }
+        .row-value.mono {
+            font-family: monospace;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            margin-top: 20px;
+            padding: 16px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.65;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .info-box-icon {
+            flex-shrink: 0;
+            font-size: 22px;
+            line-height: 1;
+        }
+        .info-box-success {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        .info-box-info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+        .info-box-warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 4px solid #f59e0b;
+            color: #78350f;
+        }
+        .info-box-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+        }
+
+        /* TIMELINE MINI */
+        .steps {
+            margin-top: 24px;
+            padding: 20px 22px;
+            background: #fafbfc;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+        }
+        .steps-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            position: relative;
+        }
+        .step:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 32px;
             width: 2px;
             height: calc(100% - 16px);
             background: #e5e7eb;
         }
-        .timeline-item:last-child::after { display: none; }
-        .timeline-item.done::after { background: #10b981; }
-        .timeline-title { font-weight: 700; font-size: 14px; color: #111827; }
-        .timeline-desc { font-size: 12.5px; color: #6b7280; margin-top: 2px; }
-        .timeline-item.done .timeline-title { color: #065f46; }
-        .timeline-item.reject .timeline-title { color: #991b1b; }
-        .alert-box { padding: 14px 18px; border-radius: 10px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
-        .alert-info { background: #eff6ff; border-left: 4px solid #2563eb; color: #1e40af; }
-        .alert-danger { background: #fef2f2; border-left: 4px solid #dc2626; color: #991b1b; }
-        .footer-bar { background: #f9fafb; padding: 18px; text-align: center; font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; }
+        .step.done:not(:last-child)::before {
+            background: #10b981;
+        }
+        .step-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .step-dot.done { background: #10b981; }
+        .step-dot.current { background: #3b82f6; animation: pulse 2s infinite; }
+        .step-dot.pending { background: #e5e7eb; color: #9ca3af; }
+        .step-dot.rejected { background: #dc2626; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.6); }
+            50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+        }
+        .step-body {
+            flex: 1;
+            padding-top: 2px;
+        }
+        .step-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+        .step-title.pending { color: #9ca3af; font-weight: 500; }
+        .step-date {
+            font-size: 11.5px;
+            color: #9ca3af;
+        }
+        .step.done .step-title { color: #065f46; }
+
+        /* FOOTER */
+        .card-footer {
+            padding: 20px 30px;
+            background: #fafbfc;
+            border-top: 1px solid #f3f4f6;
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+        .card-footer strong {
+            color: #374151;
+            font-weight: 700;
+        }
+
+        @media (max-width: 480px) {
+            .card-body { padding: 20px 22px; }
+            .card-header { padding: 26px 22px 22px; }
+            .header-icon { font-size: 46px; }
+            .header-title { font-size: 18px; }
+            .header-sub { font-size: 12px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
+@php
+    // Tentukan config berdasarkan status
+    $cfg = match ($surat ? $surat->status : 'not_found') {
+        'diajukan_ke_rt' => [
+            'header'  => 'header-warning',
+            'icon'    => '⏳',
+            'title'   => 'MENUNGGU VERIFIKASI RT',
+            'sub'     => 'Surat masih dalam antrian verifikasi Ketua RT',
+            'boxType' => 'info-box-warning',
+            'boxIcon' => '💡',
+            'boxText' => 'Surat Anda sedang menunggu verifikasi Ketua RT. Setelah diverifikasi, QR Code ini akan menampilkan status siap diambil.',
+        ],
+        'diverifikasi_rt' => [
+            'header'  => 'header-success',
+            'icon'    => '✅',
+            'title'   => 'SURAT SIAP DIAMBIL',
+            'sub'     => 'Sudah diverifikasi RT — silakan ambil surat resmi di kelurahan',
+            'boxType' => 'info-box-success',
+            'boxIcon' => '🏛️',
+            'boxText' => 'Surat Anda <strong>sudah diverifikasi oleh Ketua RT</strong>. Silakan datang ke <strong>Kantor Kelurahan</strong> untuk mengambil surat resmi (dengan tanda tangan & stempel Lurah). Bawa KTP asli dan Surat Pengantar RT.',
+        ],
+        'diproses_kelurahan' => [
+            'header'  => 'header-info',
+            'icon'    => '⚙️',
+            'title'   => 'SEDANG DIPROSES',
+            'sub'     => 'Surat sedang diproses oleh petugas kelurahan',
+            'boxType' => 'info-box-info',
+            'boxIcon' => '⏱️',
+            'boxText' => 'Surat Anda sedang diproses oleh petugas kelurahan. Silakan cek kembali QR Code ini secara berkala untuk melihat status terbaru.',
+        ],
+        'selesai' => [
+            'header'  => 'header-success',
+            'icon'    => '🎉',
+            'title'   => 'SURAT SELESAI',
+            'sub'     => 'Surat resmi siap diambil di kelurahan',
+            'boxType' => 'info-box-success',
+            'boxIcon' => '✅',
+            'boxText' => 'Surat Anda <strong>sudah selesai diproses</strong>. Silakan datang ke <strong>Kantor Kelurahan</strong> untuk mengambil surat resmi. Bawa KTP asli sebagai bukti pengambilan.',
+        ],
+        'ditolak_rt' => [
+            'header'  => 'header-danger',
+            'icon'    => '❌',
+            'title'   => 'SURAT DITOLAK RT',
+            'sub'     => 'Pengajuan ditolak oleh Ketua RT',
+            'boxType' => 'info-box-danger',
+            'boxIcon' => '⚠️',
+            'boxText' => 'Surat Anda ditolak oleh Ketua RT. Silakan hubungi RT setempat untuk informasi lebih lanjut atau memperbaiki data yang diperlukan.',
+        ],
+        'ditolak_kelurahan' => [
+            'header'  => 'header-danger',
+            'icon'    => '❌',
+            'title'   => 'SURAT DITOLAK KELURAHAN',
+            'sub'     => 'Pengajuan ditolak oleh petugas kelurahan',
+            'boxType' => 'info-box-danger',
+            'boxIcon' => '⚠️',
+            'boxText' => 'Surat Anda ditolak oleh petugas kelurahan. Silakan hubungi kelurahan untuk informasi lebih lanjut.',
+        ],
+        default => [
+            'header'  => 'header-neutral',
+            'icon'    => '❓',
+            'title'   => 'DATA TIDAK DITEMUKAN',
+            'sub'     => 'Nomor pengajuan tidak terdaftar di sistem',
+            'boxType' => 'info-box-warning',
+            'boxIcon' => '⚠️',
+            'boxText' => 'Nomor pengajuan <strong>' . e($nomor) . '</strong> tidak ditemukan. Pastikan nomor yang Anda scan benar, atau hubungi kelurahan untuk bantuan.',
+        ],
+    };
+@endphp
 
-        @if ($surat && $surat->status === 'selesai')
-            {{-- SURAT SELESAI = VALID --}}
-            <div class="header-success">
-                <div class="header-icon">✓</div>
-                <div class="header-title">SURAT VALID</div>
-                <div class="header-sub">Dokumen ini telah diverifikasi dan terdaftar di sistem kelurahan</div>
+<div class="card">
+
+    {{-- HEADER --}}
+    <div class="card-header {{ $cfg['header'] }}">
+        <div class="header-icon">{{ $cfg['icon'] }}</div>
+        <div class="header-title">{{ $cfg['title'] }}</div>
+        <div class="header-sub">{{ $cfg['sub'] }}</div>
+    </div>
+
+    {{-- BODY --}}
+    <div class="card-body">
+
+        @if ($surat)
+            <div class="row">
+                <span class="row-label">Nomor Pengajuan</span>
+                <span class="row-value mono">{{ $surat->nomor_pengajuan }}</span>
             </div>
 
-            <div class="body-content">
-                <div class="info-row">
-                    <span class="info-label">Nomor Pengajuan</span>
-                    <span class="info-value" style="font-family:monospace;">{{ $surat->nomor_pengajuan }}</span>
+            <div class="row">
+                <span class="row-label">Nama Pemohon</span>
+                <span class="row-value">{{ $surat->warga->name ?? '-' }}</span>
+            </div>
+
+            <div class="row">
+                <span class="row-label">Jenis Layanan</span>
+                <span class="row-value">{{ $surat->keperluan }}</span>
+            </div>
+
+            <div class="row">
+                <span class="row-label">Tanggal Diajukan</span>
+                <span class="row-value">{{ $surat->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
+            </div>
+
+            @if ($surat->nomor_surat)
+                <div class="row">
+                    <span class="row-label">Nomor Surat</span>
+                    <span class="row-value mono">{{ $surat->nomor_surat }}</span>
                 </div>
-                @if ($surat->nomor_surat)
-                    <div class="info-row">
-                        <span class="info-label">Nomor Surat</span>
-                        <span class="info-value" style="font-family:monospace;">{{ $surat->nomor_surat }}</span>
+            @endif
+
+            {{-- INFO BOX DINAMIS --}}
+            <div class="info-box {{ $cfg['boxType'] }}">
+                <div class="info-box-icon">{{ $cfg['boxIcon'] }}</div>
+                <div>{!! $cfg['boxText'] !!}</div>
+            </div>
+
+            {{-- MINI TIMELINE --}}
+            <div class="steps">
+                <div class="steps-title">📊 Riwayat Proses</div>
+
+                {{-- Step 1: Diajukan --}}
+                <div class="step done">
+                    <div class="step-dot done">✓</div>
+                    <div class="step-body">
+                        <div class="step-title">Surat Diajukan</div>
+                        <div class="step-date">{{ $surat->created_at->translatedFormat('d F Y, H:i') }} WIB</div>
                     </div>
-                @endif
-                <div class="info-row">
-                    <span class="info-label">Jenis Layanan</span>
-                    <span class="info-value">{{ $surat->keperluan }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Nama Pemohon</span>
-                    <span class="info-value">{{ $surat->warga->name }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">NIK</span>
-                    <span class="info-value" style="font-family:monospace;">
-                        {{ substr($surat->warga->nik, 0, 6) . '******' . substr($surat->warga->nik, -4) }}
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">RT / RW</span>
-                    <span class="info-value">{{ $surat->warga->rt }} / {{ $surat->warga->rw }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Tanggal Terbit</span>
-                    <span class="info-value">{{ \Carbon\Carbon::parse($surat->kelurahan_processed_at)->translatedFormat('d F Y') }}</span>
                 </div>
 
-                <div class="section-title">📊 Riwayat Verifikasi</div>
-
-                <div class="timeline">
-                    <div class="timeline-item done">
-                        <div class="timeline-title">✓ Surat Diajukan</div>
-                        <div class="timeline-desc">{{ $surat->created_at->translatedFormat('d F Y, H:i') }} WIB — oleh {{ $surat->warga->name }}</div>
-                    </div>
-
-                    @if ($surat->rt_verified_at)
-                        <div class="timeline-item done">
-                            <div class="timeline-title">✓ Diverifikasi RT {{ $surat->warga->rt }}</div>
-                            <div class="timeline-desc">{{ $surat->rt_verified_at->translatedFormat('d F Y, H:i') }} WIB — oleh {{ $surat->rtVerifier->name ?? '-' }}</div>
+                {{-- Step 2: Verifikasi RT --}}
+                @if ($surat->rt_verified_at)
+                    @php
+                        $rtOk = $surat->status !== 'ditolak_rt';
+                    @endphp
+                    <div class="step {{ $rtOk ? 'done' : '' }}">
+                        <div class="step-dot {{ $rtOk ? 'done' : 'rejected' }}">{{ $rtOk ? '✓' : '✕' }}</div>
+                        <div class="step-body">
+                            <div class="step-title {{ $rtOk ? '' : 'pending' }}">
+                                {{ $rtOk ? 'Diverifikasi RT' : 'Ditolak RT' }}
+                            </div>
+                            <div class="step-date">{{ $surat->rt_verified_at->translatedFormat('d F Y, H:i') }} WIB</div>
                         </div>
-                    @endif
-
-                    @if ($surat->kelurahan_processed_at)
-                        <div class="timeline-item done">
-                            <div class="timeline-title">✓ Diproses & Disahkan Kelurahan</div>
-                            <div class="timeline-desc">{{ $surat->kelurahan_processed_at->translatedFormat('d F Y, H:i') }} WIB — oleh {{ $surat->kelurahanProcessor->name ?? '-' }}</div>
+                    </div>
+                @else
+                    <div class="step">
+                        <div class="step-dot current">⏳</div>
+                        <div class="step-body">
+                            <div class="step-title">Menunggu Verifikasi RT</div>
+                            <div class="step-date">Sedang diproses</div>
                         </div>
-                    @endif
-                </div>
-
-                <div class="alert-box alert-info">
-                    ✓ <strong>Dokumen ini asli dan terverifikasi.</strong><br>
-                    Surat dengan nomor pengajuan <span style="font-family:monospace; font-weight:700;">{{ $surat->nomor_pengajuan }}</span> 
-                    terdaftar di Sistem Pelayanan Surat Kelurahan dan telah ditandatangani secara sah.
-                </div>
-            </div>
-
-        @elseif ($surat && in_array($surat->status, ['diverifikasi_rt', 'diproses_kelurahan']))
-            {{-- SURAT MASIH DIPROSES --}}
-            <div class="header-warning">
-                <div class="header-icon">⏳</div>
-                <div class="header-title">SURAT DALAM PROSES</div>
-                <div class="header-sub">Dokumen ini masih dalam tahap pemrosesan</div>
-            </div>
-
-            <div class="body-content">
-                <div class="info-row">
-                    <span class="info-label">Nomor Pengajuan</span>
-                    <span class="info-value" style="font-family:monospace;">{{ $surat->nomor_pengajuan }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Nama Pemohon</span>
-                    <span class="info-value">{{ $surat->warga->name }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Status Saat Ini</span>
-                    <span class="info-value">{{ str_replace('_', ' ', $surat->status) }}</span>
-                </div>
-
-                <div class="alert-box alert-info">
-                    ⏳ Surat dengan nomor pengajuan <strong>{{ $surat->nomor_pengajuan }}</strong> masih dalam proses. 
-                    Silakan cek kembali nanti.
-                </div>
-            </div>
-
-        @elseif ($surat && in_array($surat->status, ['ditolak_rt', 'ditolak_kelurahan']))
-            {{-- SURAT DITOLAK --}}
-            <div class="header-danger">
-                <div class="header-icon">✕</div>
-                <div class="header-title">SURAT DITOLAK</div>
-                <div class="header-sub">Dokumen ini tidak disahkan</div>
-            </div>
-
-            <div class="body-content">
-                <div class="info-row">
-                    <span class="info-label">Nomor Pengajuan</span>
-                    <span class="info-value" style="font-family:monospace;">{{ $surat->nomor_pengajuan }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Nama Pemohon</span>
-                    <span class="info-value">{{ $surat->warga->name }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Status</span>
-                    <span class="info-value">{{ str_replace('_', ' ', $surat->status) }}</span>
-                </div>
-
-                @if ($surat->status === 'ditolak_rt' && $surat->catatan_rt)
-                    <div class="alert-box alert-danger">
-                        <strong>Alasan ditolak RT:</strong><br>
-                        {{ $surat->catatan_rt }}
                     </div>
                 @endif
-                @if ($surat->status === 'ditolak_kelurahan' && $surat->catatan_kelurahan)
-                    <div class="alert-box alert-danger">
-                        <strong>Alasan ditolak Kelurahan:</strong><br>
-                        {{ $surat->catatan_kelurahan }}
+
+                {{-- Step 3: Proses Kelurahan --}}
+                @if ($surat->kelurahan_processed_at && in_array($surat->status, ['diproses_kelurahan', 'selesai', 'ditolak_kelurahan']))
+                    @php
+                        $kelOk = $surat->status !== 'ditolak_kelurahan';
+                        $kelTitle = match($surat->status) {
+                            'diproses_kelurahan' => 'Diproses Kelurahan',
+                            'selesai'            => 'Surat Selesai',
+                            'ditolak_kelurahan'  => 'Ditolak Kelurahan',
+                            default              => 'Diproses Kelurahan',
+                        };
+                    @endphp
+                    <div class="step {{ $kelOk ? 'done' : '' }}">
+                        <div class="step-dot {{ $kelOk ? 'done' : 'rejected' }}">{{ $kelOk ? '✓' : '✕' }}</div>
+                        <div class="step-body">
+                            <div class="step-title {{ $kelOk ? '' : 'pending' }}">{{ $kelTitle }}</div>
+                            <div class="step-date">{{ $surat->kelurahan_processed_at->translatedFormat('d F Y, H:i') }} WIB</div>
+                        </div>
                     </div>
-                @endif
+                               @endif
             </div>
 
         @else
-            {{-- SURAT TIDAK DITEMUKAN --}}
-            <div class="header-danger">
-                <div class="header-icon">✕</div>
-                <div class="header-title">SURAT TIDAK DITEMUKAN</div>
-                <div class="header-sub">Nomor pengajuan tidak terdaftar</div>
-            </div>
-
-            <div class="body-content">
-                <div class="alert-box alert-danger">
-                    Nomor pengajuan <strong style="font-family:monospace;">{{ $nomor }}</strong> tidak terdaftar di sistem kami.<br><br>
-                    Kemungkinan penyebab:
-                    <ul style="margin:8px 0 0 18px; padding:0;">
-                        <li>Nomor yang Anda masukkan salah</li>
-                        <li>Surat palsu atau tidak diterbitkan oleh sistem resmi</li>
-                    </ul>
-                </div>
+            {{-- Nomor tidak ditemukan --}}
+            <div class="info-box {{ $cfg['boxType'] }}">
+                <div class="info-box-icon">{{ $cfg['boxIcon'] }}</div>
+                <div>{!! $cfg['boxText'] !!}</div>
             </div>
         @endif
 
-        <div class="footer-bar">
-            🔒 Sistem Verifikasi Surat Digital<br>
-            Kelurahan Sungai Asam • Kecamatan Danau Sipin • Kota Jambi
-        </div>
-
     </div>
+
+    {{-- FOOTER --}}
+    <div class="card-footer">
+        🔒 <strong>Sistem Verifikasi Surat Digital</strong><br>
+        Kelurahan Sungai Asam • Kecamatan Danau Sipin • Kota Jambi
+    </div>
+
+</div>
 
 </body>
 </html>

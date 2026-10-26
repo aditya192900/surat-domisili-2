@@ -36,6 +36,14 @@ class SuratDomisiliExport implements FromCollection, WithHeadings, WithMapping, 
                 'ditolak_kelurahan',
             ]);
 
+        // 🆕 Filter per RT (untuk export dari RT)
+        if (!empty($this->filter['rt'])) {
+            $rt = $this->filter['rt'];
+            $query->whereHas('warga', function ($q) use ($rt) {
+                $q->where('rt', $rt);
+            });
+        }
+
         if (!empty($this->filter['status'])) {
             $query->where('status', $this->filter['status']);
         }
@@ -125,7 +133,6 @@ class SuratDomisiliExport implements FromCollection, WithHeadings, WithMapping, 
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
-                // Style seluruh sel data: border + alignment
                 $sheet->getStyle("A1:{$highestColumn}{$highestRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
@@ -139,7 +146,6 @@ class SuratDomisiliExport implements FromCollection, WithHeadings, WithMapping, 
                     ],
                 ]);
 
-                // Header: biru + teks putih + bold
                 $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
                     'font' => [
                         'bold'  => true,
@@ -156,19 +162,11 @@ class SuratDomisiliExport implements FromCollection, WithHeadings, WithMapping, 
                     ],
                 ]);
 
-                // Tinggi header
                 $sheet->getRowDimension(1)->setRowHeight(30);
-
-                // Freeze baris pertama (header tetap terlihat saat scroll)
                 $sheet->freezePane('A2');
-
-                // Autofilter: header punya tombol dropdown untuk filter/sort
                 $sheet->setAutoFilter("A1:{$highestColumn}{$highestRow}");
-
-                // Alignment khusus kolom "No" (kolom A) rata tengah
                 $sheet->getStyle("A2:A{$highestRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                // Striping baris (baris genap abu-abu muda)
                 for ($row = 2; $row <= $highestRow; $row++) {
                     if ($row % 2 == 0) {
                         $sheet->getStyle("A{$row}:{$highestColumn}{$row}")->applyFromArray([

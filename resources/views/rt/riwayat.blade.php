@@ -9,10 +9,22 @@
                     Semua riwayat pengajuan surat yang pernah ditangani
                 </p>
             </div>
-            <a href="{{ route('rt.surat.index') }}"
-               style="padding:10px 20px; background:white; color:#374151; border:1.5px solid #e5e7eb; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:8px;">
-                ← Kembali ke Verifikasi
-            </a>
+            <div style="display:flex; gap:8px;">
+                {{-- 🆕 TOMBOL CETAK PDF --}}
+                <a href="{{ route('rt.surat.riwayat.pdf', request()->query()) }}"
+                   style="padding:10px 20px; background:linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color:white; border-radius:10px; text-decoration:none; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(220,38,38,0.25);">
+                    📄 Cetak PDF
+                </a>
+                {{-- TOMBOL EXPORT EXCEL --}}
+                <a href="{{ route('rt.surat.riwayat.export', request()->query()) }}"
+                   style="padding:10px 20px; background:linear-gradient(135deg, #16a34a 0%, #15803d 100%); color:white; border-radius:10px; text-decoration:none; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(22,163,74,0.25);">
+                    📊 Export Excel
+                </a>
+                <a href="{{ route('rt.surat.index') }}"
+                   style="padding:10px 20px; background:white; color:#374151; border:1.5px solid #e5e7eb; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:8px;">
+                    ← Kembali
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -93,7 +105,7 @@
             @endif
 
             {{-- FILTER --}}
-            <form method="GET" style="background:white; padding:16px; border-radius:14px; box-shadow:0 4px 20px rgba(0,0,0,0.06); margin-bottom:20px;">
+            <form method="GET" style="background:white; padding:16px; border-radius:14px; box-shadow:0 4px 20px rgba(0,0,0,0.06); margin-bottom:16px;">
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
                     <div style="min-width:220px;">
                         <label style="display:block; font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Cari</label>
@@ -132,6 +144,14 @@
                     </div>
                 </div>
             </form>
+
+            {{-- 🆕 INFO EXPORT & CETAK --}}
+            <div style="background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:1.5px solid #6ee7b7; border-left:4px solid #10b981; border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:flex-start; gap:12px;">
+                <div style="font-size:18px; flex-shrink:0;">💡</div>
+                <div style="flex:1; font-size:12.5px; color:#065f46; line-height:1.6;">
+                    <strong>Export Excel</strong> dan <strong>Cetak PDF</strong> akan mengikuti filter yang aktif. Klik salah satu tombol di atas untuk mengunduh laporan dalam format <code>.xlsx</code> atau dokumen <code>.pdf</code> yang siap dicetak.
+                </div>
+            </div>
 
             {{-- TABEL --}}
             <div style="background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06); overflow:hidden;">
@@ -179,7 +199,7 @@
                                     <td style="padding:16px 20px; vertical-align:middle;">
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             @if ($item->warga->foto)
-                                                <img src="{{ route('profile.foto', $item->warga) }}"
+                                                <img src="{{ route('profile.foto', $item->warga) }}" loading="lazy"
                                                      style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid #e5e7eb;">
                                             @else
                                                 <div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">
